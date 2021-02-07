@@ -1,4 +1,11 @@
 #!/bin/sh
+# Script to stop default raspbian services, start audio services. But only in case no external storage connected (for dual purpose use) 
+# It will also (re)set some settings which will be applied from the first reboot now on. So it's good idea to reboot rpi after first time this script was executed 
+# Further optimizations are executed by 20-tweaks.sh which is called from here.
+# 
+# Please update LAN_IP to match your network where this streamer will be located to have automatic wifi poweroff feature working.
+#   - We assume usage of dhcp for ethernet interface here..
+
 
 LAN_IP='inet 192.168.0.'
 
