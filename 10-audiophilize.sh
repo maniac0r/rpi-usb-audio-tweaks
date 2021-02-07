@@ -39,7 +39,7 @@ if [ "$ETH" -eq 0 ] ; then
   /sbin/ifconfig wlan0 down
 fi
 
-./tweaks.sh
+./20-tweaks.sh
 
 
 
