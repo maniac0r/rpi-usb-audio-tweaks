@@ -1,0 +1,9 @@
+[Unit]
+Description=rc.local workaround by maniac
+After=multi-user.target
+
+[Service]
+ExecStart=/etc/rc.local
+
+[Install]
+WantedBy=multi-user.target

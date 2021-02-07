@@ -1,0 +1,52 @@
+#!/bin/sh
+
+# NOTE: this script must only use really basic shell features as it must be able to run on limited
+# busybox installs (synology, etc)
+
+SCRIPT="`basename "$0"`"
+FULLPATH="$0"
+echo "$0" | grep -q ^/
+if [ $? -ne 0 ]; then FULLPATH="`pwd`/$0"; fi
+
+ROOTPATH=
+OIFS="$IFS"
+IFS=/
+for i in `echo "$FULLPATH"`; do
+    if [ "x$i" != "x" ]; then
+        ROOTPATH="$ROOTPATH/$i"
+        if [ -d "$ROOTPATH/RoonMono" ]; then break; fi
+    fi
+done
+IFS="$OIFS"
+
+MONO_DIR="$ROOTPATH/RoonMono"
+export MONO_DIR
+PATH="$MONO_DIR/bin":"$PATH"
+export PATH
+LD_LIBRARY_PATH="$MONO_DIR/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH
+FONTCONFIG_PATH="$MONO_DIR/etc/fonts"
+export FONTCONFIG_PATH
+MONO_DEBUG=no-gdb-backtrace
+export MONO_DEBUG
+MONO_GC_PARAMS=major=marksweep-conc,nursery-size=16m
+export MONO_GC_PARAMS
+MONO_TLS_PROVIDER=btls
+export MONO_TLS_PROVIDER
+MONO_ENABLE_BLOCKING_TRANSITION=1
+export MONO_ENABLE_BLOCKING_TRANSITION
+
+# boost ulimit
+ulimit -n 8192
+
+# we don't use stdin, so close it up.
+exec 0</dev/null
+exec 0>/dev/null
+
+# fire up the app
+cd "$ROOTPATH/Bridge"
+if [ -x /bin/bash ]; then
+    exec /usr/bin/taskset -c 2 /bin/bash -c "exec -a RAATServer \"$MONO_DIR/bin/mono-sgen\" --debug --gc=sgen --server RAATServer.exe $@"
+else
+    exec "$MONO_DIR/bin/mono-sgen" --debug --gc=sgen --server RAATServer.exe "$@"
+fi
