@@ -6,8 +6,13 @@
 # Please update LAN_IP to match your network where this streamer will be located to have automatic wifi poweroff feature working.
 #   - We assume usage of dhcp for ethernet interface here..
 
-
 LAN_IP='inet 192.168.0.'
+NFS_IP='192.168.0.2'
+
+# set cpu governor
+for CPU in 0 1 2 3 ; do
+  echo "performance" > /sys/devices/system/cpu/cpu${CPU}/cpufreq/scaling_governor
+done
 
 # stop all not needed
 systemctl stop exim4 netdata bluetooth cron openvpn-client@rpi4bkp1195 openvpn-client@rpi4bkp wpa_supplicant rsync "triggerhappy*" smartd hciuart systemd-timesyncd dbus.socket dbus rng-tools "systemd-journald*" systemd-journald systemd-journald.socket systemd-journald-audit.socket systemd-journald-dev-log.socket rsyslog syslog.socket systemd-tmpfiles-clean.timer systemd-tmpfiles-clean man-db.timer logrotate.timer apt-daily.timer apt-daily-upgrade.timer systemd-journald.socket systemd-journald alsa-state getty@tty1.service
@@ -24,7 +29,9 @@ ln -s /dev/shm/RAATServer/Logs /var/roon/RAATServer/Logs
 ln -s /dev/shm/RoonBridge/Logs /var/roon/RoonBridge/Logs
 
 # start network audio services
-systemctl start mpd mpd.socket upmpdcli networkaudiod roonbridge
+#systemctl start mpd mpd.socket upmpdcli networkaudiod roonbridge
+# will start mpd later, after momunting nfs..
+systemctl start upmpdcli networkaudiod roonbridge
 
 # flush firewalll
 iptables -P INPUT ACCEPT ; iptables -F INPUT
@@ -36,7 +43,7 @@ sudo mount -o remount,size=32M /dev/shm
 # give dhcpcd chance to setup eth0 during boot time
 UPTIME=$(awk -F '.' '{print $1}' /proc/uptime)
 if [ $UPTIME -lt 120 ] ; then
-  sleep 20
+  sleep 30	# 20 is enough on 1500MHz, 30 for 400MHz
 fi
 
 # if we got proper ip on ethernet (dhcpcd) then turn off wifi
@@ -45,6 +52,23 @@ if [ "$ETH" -eq 0 ] ; then
   echo "FOUND configured eth0 , DISABLING wlan"
   /sbin/ifconfig wlan0 down
 fi
+
+
+for X in {1..3} ; do
+  NAS=$(ping -q -c 3 -W 10 $NFS_IP 2>&1 >/dev/null ; echo $? | egrep -v '^$')
+  if [ "$NAS" -eq 0 ] ; then
+    mount /storage-nfs
+    break
+  fi
+  echo "Mounting NFS: Try $X failed.."
+done
+
+/usr/sbin/ntpdate sk.pool.ntp.org &
+
+systemctl start mpd mpd.socket
+
+# disable HDMI video out
+/opt/vc/bin/tvservice -o
 
 ./20-tweaks.sh
 

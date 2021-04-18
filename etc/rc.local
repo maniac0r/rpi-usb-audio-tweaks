@@ -18,8 +18,6 @@ exec 2<&-
 exec 1<>$LOG_FILE
 exec 2>&1
 
-ntpdate sk.pool.ntp.org &
-
 # Print the IP address
 _IP=$(hostname -I) || true
 if [ "$_IP" ]; then
@@ -43,5 +41,8 @@ echo "" >> /var/log/audiophilize-boot.log
 if [ "$E" -eq 1 ] ; then
   /home/pi/audiophilize.sh 2>&1 >> /var/log/audiophilize-boot.log 2>&1
 fi
+
+TZ='Europe/Prague' ; export TZ
+/usr/sbin/ntpdate sk.pool.ntp.org &
 
 exit 0

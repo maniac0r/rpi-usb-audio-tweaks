@@ -49,6 +49,8 @@ cpu_affinity_trash() {
   # trash goes to this cpu
   /usr/bin/taskset -c -p $1 $(pidof RoonBridgeHelper)
   /usr/bin/taskset -c -p $1 $(pidof processreaper)
+  /usr/bin/taskset -c -p $1 $(pgrep -f RoonBridge.exe)
+  /usr/bin/taskset -c -p $1 $(pgrep -f rcu_preempt)
 }
 
 renice_usb() {
@@ -243,53 +245,65 @@ set_kernelparams
 
 remove_kernelmodules
 
-cpu_affinity_eth0	3
+# USB
+renice_usb	-19
+set_realtime $P_XHCI		FIFO 99	pgrep
 cpu_affinity_usbxhci	0	# stay together with XHCI IRQ on CPU0
-cpu_affinity_raat	2
-cpu_affinity_mpd	2
-cpu_affinity_naa	2
-cpu_affinity_upmpdcli	1
-cpu_affinity_trash	1
-
-# ETH0
- echo $CPU3  > /proc/irq/46/smp_affinity	# RX
- echo $CPU3 > /proc/irq/47/smp_affinity		# TX
-
-  # USB XHCI (is fixed to cpu0...)
-  # echo $CPU0 > /proc/irq/54/smp_affinity
 
 # MMC SDcard
  echo $CPU1 > /proc/irq/40/smp_affinity
 
+# Ethernet
+ cpu_affinity_eth0	3
+ echo $CPU3  > /proc/irq/46/smp_affinity	# RPI4 ETH0 RX
+ echo $CPU3 > /proc/irq/47/smp_affinity		# RPI4 ETH0 TX
+
+
+exit
+
+# RAAT
+cpu_affinity_raat	2
+renice_raat		-18
+set_realtime $P_RAAT	FIFO 95
+
+# HQP NAA
+cpu_affinity_naa	2
+renice_hpq		-18
+set_realtime $P_HQP	FIFO 95
+
+
+cpu_affinity_mpd	2
+cpu_affinity_upmpdcli	1
+cpu_affinity_trash	1
+
+# ETH0
+ echo $CPU3  > /proc/irq/46/smp_affinity	# RPI4 ETH0 RX
+ echo $CPU3 > /proc/irq/47/smp_affinity		# RPI4 ETH0 TX
+
+  # USB XHCI (is fixed to cpu0...)
+  # echo $CPU0 > /proc/irq/54/smp_affinity
+
   # arch timer (is fixed to all cpus...)
   # echo $CPU123 > /proc/irq/19/smp_affinity
 
+#renice_mpd	-18
 
-renice_usb	-19
-renice_mpd	-18
-renice_raat	-18
-renice_hpq	-18
 renice_upmpdcli -17
 renice_eth0	-5
 
 
+# MPD si handluje RTPRIO sam (rtprio 40 len pre potrebne thready)
+#set_realtime $P_MPD		FIFO 95
 
-
-set_realtime $P_XHCI		FIFO 99	pgrep
-
-set_realtime $P_RAAT		FIFO 95
-
-
-set_realtime $P_MPD		FIFO 95
-set_realtime $P_HQP		FIFO 95
 exit
 
-set_realtime $P_BRIDGE		FIFO 90
+# network servicec, not directly players
+#set_realtime $P_BRIDGE		FIFO 90
+#set_realtime $P_UPMPD		FIFO 90	pgrep
 
-set_realtime $P_UPMPD		FIFO 90	pgrep
+# 20210324 toto ked je zapnute tak seka zaciatok tracku a potom kazdych cca 10sec sek. vtedy mpd cachuje zo siete
+#set_realtime $P_ETH		FIFO 80	pgrep
 
-set_realtime $P_ETH		FIFO 80	pgrep
-
-set_realtime $P_APPLIANCE	RR 70
-set_realtime $P_ROON		RR 70
+#set_realtime $P_APPLIANCE	RR 70
+#set_realtime $P_ROON		RR 70
 

@@ -1,0 +1,54 @@
+# Enable audio (loads snd_bcm2835)
+# dtparam=audio=off
+
+[pi4]
+
+[all]
+##dtoverlay=vc4-fkms-v3d
+## maniac - z picore rpi3 - kde som to vypol 21.8.2020
+#force_turbo=1
+##arm_freq=500
+##sdram_freq=250
+##core_freq=250
+##gpu_freq=250
+##over_voltage=-10
+##sdram_schmoo=0x02000020
+##over_voltage_sdram_p=-6
+##over_voltage_sdram_i=-16
+##over_voltage_sdram_c=-16
+
+
+
+# audiophile tuning
+force_turbo=1
+arm_freq=1400
+sdram_freq=700
+h264_freq=200
+isp_freq=200
+v3d_freq=200
+hevc_freq=200
+#
+arm_freq_min=1400
+# 
+# [-18,8] which equates to the range [0.8V, 1.4V] with 0.025V steps
+#over_voltage=-10
+#over_voltage_sdram_p=-4
+#over_voltage_sdram_i=-10
+#over_voltage_sdram_c=-10
+
+# nepouzivame analog out
+force_pwm_open=0
+
+# nepouzivame bt
+#dtoverlay=disable-bt
+
+# nepouzivame uart
+enable_uart=0
+##8250.nr_uarts=0
+
+#arm_64bit=1
+#kernel=kernel8_rt.img
+
+gpu_mem=4
+initramfs initramfs-linux.img followkernel
+disable_splash=1
