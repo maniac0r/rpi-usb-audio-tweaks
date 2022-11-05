@@ -1,0 +1,22 @@
+cd linux-6.1-rc3-RT-gcc
+
+export KERNEL=kernel8
+
+export ARCH=arm64
+export CROSS_COMPILE=aarch64-linux-gnu-
+export INSTALL_MOD_PATH=../out
+export INSTALL_DTBS_PATH=../out
+
+export CFLAGS="-march=armv8-a+crc+simd -mtune=cortex-a72 -O3"
+export CXXFLAGS=$CFLAGS
+export KCFLAGS=$CFLAGS
+
+make -j 8 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CFLAGS="-march=armv8-a+crc+simd -mtune=cortex-a72 -O3" CXXFLAGS="-march=armv8-a+crc+simd -mtune=cortex-a72 -O3" KCFLAGS="-march=armv8-a+crc+simd -mtune=cortex-a72 -O3"
+make -j 8 dtbs
+make -j 8 dtbs_install
+
+
+cp arch/arm64/boot/Image.gz ../out/$KERNEL
+scp arch/arm64/boot/Image.gz pi@192.168.0.134:out/kernel8.img
+
+cd ..
