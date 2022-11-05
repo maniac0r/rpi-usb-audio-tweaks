@@ -1,9 +1,26 @@
-# tuned for neresiev lowest jitter
 [pi4]
 arm_boost=1
+arm_freq=2200
+over_voltage=12
+
+dtparam=audio=off
+
+dtparam=spi=off
+dtparam=i2c_arm=off
+
+
+dtparam=act_led
+
+dtparam=eth_led0=4
+dtparam=eth_led1=4
+
+dtparam=act_led_trigger=none
+dtparam=act_led_activelow=off
+dtparam=pwr_led_trigger=none
+dtparam=pwr_led_activelow=off
 
 [all]
-
+hdmi_blanking=1
 
 
 force_turbo=1
@@ -11,9 +28,16 @@ force_turbo=1
 force_pwm_open=0
 
 dtoverlay=disable-bt
+dtoverlay=disable-wifi
 
 enable_uart=0
 
+arm_64bit=1
+
+
+
+kernel8.img-6.1-rc3-RT-nodebug-gcc_kinetic-optimizedO3
+
 
 gpu_mem=4
-disable_splash=0
+disable_splash=1
