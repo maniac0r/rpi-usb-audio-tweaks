@@ -1,1 +1,1 @@
-root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rw rootwait ipv6.disable=1 noswap snd_bcm2835.enable_hdmi=0 plymouth.ignore-serial-consoles console=tty1 consoleblank=1 loglevel=0 bootdelay=1 isolcpus=0
+root=/dev/mmcblk0p2 rootfstype=ext4 fsck.repair=yes rootwait elevator=deadline ipv6.disable=1 snd_bcm2835.enable_hdmi=0 plymouth.ignore-serial-consoles console=tty1 consoleblank=1 loglevel=0 bootdelay=1 vt.global_cursor_default=0 isolcpus=0 idle=poll rcu_nocb_poll tsc=reliable
