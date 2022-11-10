@@ -1,1 +1,0 @@
-console=tty1 root=PARTUUID=738a4d67-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait ipv6.disable=1 consoleblank=1 noswap snd_bcm2835.enable_hdmi=0 8250.nr_uarts=0 enable_uart=0
