@@ -6,14 +6,14 @@ HW Supported:
 - Onboard ethernet
 
 Software:
-- Raspbian 11 64bit
+- [Raspbian 11 64bit](https://www.raspberrypi.com/news/raspberry-pi-os-64-bit/)
     - stripped all running services
-    - custom kernel
+    - custom [RT patched](https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt/) kernel
     - runtime kernel config optimizations (sysctl)
-- RoonBridge
+- [RoonBridge](https://roonlabs.com/downloads)
     - autostarted
     - - systemctl stop mpd ; systemctl start roonbridge
-- MPD
+- [MPD](https://github.com/MusicPlayerDaemon/MPD)
     - systemctl stop roonbridge ; systemctl start mpd
 - Static IP configuration
     - /etc/network/interfaces.d/eth0
