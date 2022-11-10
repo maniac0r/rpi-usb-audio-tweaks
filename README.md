@@ -66,4 +66,4 @@ for comarison, jitterdebugger examples from other distros:
 
 
 Detailed per-cpu core viee of jitter performance:
-![jitterplot-output](https://github.com/maniac0r/rpi-usb-audio-tweaks/blob/main/jitterplot-outputs.png?raw=true)
+![jitterplot-output](https://github.com/maniac0r/rpi-usb-audio-tweaks/blob/main/images/jitterplot-outputs.png?raw=true)
