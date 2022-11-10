@@ -63,4 +63,7 @@ for comarison, jitterdebugger examples from other distros:
     T: 1 ( 1880) A: 1 C:     82933 Min:         7 Avg:   11.53 Max:        67
     T: 2 ( 1881) A: 2 C:     82907 Min:         6 Avg:   11.47 Max:        54
     T: 3 ( 1882) A: 3 C:     82891 Min:         7 Avg:   11.57 Max:        57
-    
+
+
+Detailed per-cpu core viee of jitter performance:
+![jitterplot-output](https://github.com/maniac0r/rpi-usb-audio-tweaks/blob/main/jitterplot-outputs.png?raw=true)
