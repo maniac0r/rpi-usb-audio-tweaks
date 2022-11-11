@@ -1,16 +1,4 @@
-#!/bin/sh
-#
-# rc.local
-#
-# This script is executed at the end of each multiuser runlevel.
-# Make sure that the script will "exit 0" on success or any other
-# value on error.
-#
-# In order to enable or disable this script just change the execution
-# bits.
-#
-# By default this script does nothing.
-
+#!/bin/bash
 
 LOG_FILE=/var/log/boot-rc.local.log
 exec 1<&-
@@ -18,31 +6,18 @@ exec 2<&-
 exec 1<>$LOG_FILE
 exec 2>&1
 
-# Print the IP address
-_IP=$(hostname -I) || true
-if [ "$_IP" ]; then
-  printf "My IP address is %s\n" "$_IP"
-fi
+TZ='Europe/Prague' ; export TZ
+/usr/sbin/ntpdate sk.pool.ntp.org &
 
+# prepare RAMDisk folder structure
 mkdir -p /dev/shm/cache/netdata
 chown netdata:netdata /dev/shm/cache/netdata
 chmod 775 /dev/shm/cache/netdata
 rm -rf /var/cache/netdata
 ln -s /dev/shm/cache/netdata /var/cache/netdata
+mkdir -p /dev/shm/RoonBridge/Logs /dev/shm/RAATServer/Logs
 
-/sbin/swapoff -a
-/etc/rc.firewall &
-
-
-# no external disk attached
-E=$(lsblk | egrep -v -q 'NAME|mmcblk' ; echo $?)
-echo "E: $E" >> /var/log/audiophilize-boot.log
-echo "" >> /var/log/audiophilize-boot.log
-if [ "$E" -eq 1 ] ; then
-  /home/pi/audiophilize.sh 2>&1 >> /var/log/audiophilize-boot.log 2>&1
-fi
-
-TZ='Europe/Prague' ; export TZ
-/usr/sbin/ntpdate sk.pool.ntp.org &
+# stop not needed servies and execute tweaks
+/home/pi/audiophilize.sh 2>&1 >> /var/log/audiophilize-boot.log 2>&1
 
 exit 0
