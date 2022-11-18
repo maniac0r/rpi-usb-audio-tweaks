@@ -73,3 +73,6 @@ for comarison, jitterdebugger examples from other distros:
 
 Detailed per-cpu core viee of jitter performance:
 ![jitterplot-output](https://github.com/maniac0r/rpi-usb-audio-tweaks/blob/main/images/jitterplot-outputs.png?raw=true)
+
+Comparison chart of jitter across various RPi4 OSes
+![img](https://raw.githubusercontent.com/maniac0r/rpi-usb-audio-tweaks/main/images/Chart-RPi4-OS-jitter-comparison.png)
