@@ -64,6 +64,12 @@ for comarison, jitterdebugger examples from other distros:
     T: 2 ( 1881) A: 2 C:     82907 Min:         6 Avg:   11.47 Max:        54
     T: 3 ( 1882) A: 3 C:     82891 Min:         7 Avg:   11.57 Max:        57
 
+    # Raspbian11 64bit , only few services running:
+    affinity: 0-3 = 4 [0xF]
+    T: 0 (  705) A: 0 C:     94692 Min:         6 Avg:   20.17 Max:        97
+    T: 1 (  706) A: 1 C:     94664 Min:         6 Avg:   19.97 Max:        43
+    T: 2 (  707) A: 2 C:     94636 Min:         5 Avg:   20.16 Max:        44
+    T: 3 (  708) A: 3 C:     94620 Min:         6 Avg:   21.25 Max:        71
 
 Detailed per-cpu core viee of jitter performance:
 ![jitterplot-output](https://github.com/maniac0r/rpi-usb-audio-tweaks/blob/main/images/jitterplot-outputs.png?raw=true)
