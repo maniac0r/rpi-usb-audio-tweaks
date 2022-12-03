@@ -6,7 +6,7 @@
 dpkg -l | egrep '  xserver|  vlc|  lx|  qt5|  qml-module-qtquick2|  chromium|  gtk|  gstream|  fonts|  colord|  pulseaudio|  cups|  gsettings|  x11|  blue|  avahi|  triggerhappy|  modemmanager' | awk '{print $2}' | xargs apt -y remove
 apt autoremove
 apt update ; apt upgrade
-apt install ntpdate tuna
+apt install ntpdate tuna git
 
 cd ~pi/
 git clone https://github.com/maniac0r/rpi-usb-audio-tweaks.git
