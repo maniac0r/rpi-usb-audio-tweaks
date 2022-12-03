@@ -1,6 +1,6 @@
 # on fresh raspios11 64bit  run as root:
 
-dpkg -l | egrep '  xserver|  vlc|  lx|  qt5|  chromium|  gtk|  gstream|  fonts|  colord|  pulseaudio|  cups|  gsettings|  x11|  blue|  avahi|  triggerhappy|  modemmanager' | awk '{print $2}' | xargs apt -y remove
+dpkg -l | egrep '  xserver|  vlc|  lx|  qt5|  qml-module-qtquick2|  chromium|  gtk|  gstream|  fonts|  colord|  pulseaudio|  cups|  gsettings|  x11|  blue|  avahi|  triggerhappy|  modemmanager' | awk '{print $2}' | xargs apt -y remove
 apt autoremove
 apt update ; apt upgrade
 apt install ntpdate tuna
