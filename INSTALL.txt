@@ -1,0 +1,37 @@
+# on fresh raspios11 64bit  run as root:
+
+dpkg -l | egrep '  xserver|  vlc|  lx|  qt5|  chromium|  gtk|  gstream|  fonts|  colord|  pulseaudio|  cups|  gsettings|  x11|  blue|  avahi|  triggerhappy|  modemmanager' | awk '{print $2}' | xargs apt -y remove
+apt autoremove
+apt update ; apt upgrade
+apt install ntpdate tuna
+
+cd ~pi/
+git clone https://github.com/maniac0r/rpi-usb-audio-tweaks.git
+cd rpi-usb-audio-tweaks/boot
+cp kernel8.img-6.1-rc3-RT-* /boot/
+cp /boot/cmdline.txt /boot/cmdline.txt.dist
+cp /boot/config.txt /boot/config.txt.dist
+cp config.txt /boot/
+cp cmdline.txt /boot/
+cp babysit.sh ../
+chmod 755 ../babysit.sh
+cp babysit.service /etc/systemd/system/
+systemctl enable babysit
+systemctl start babysit
+cp /etc/rc.local /etc/rc.local.dist
+cp etc/rc.local /etc/rc.local
+chmod 755 /etc/rc.local
+cp 10-audiophilize.sh ../
+cp 20-tweaks.sh ../
+cp hex2bin.sh ../
+cp psthread-rpi ../
+chmod 755 ../psthread-rpi
+
+# RoonBridge install
+cd ~pi
+wget https://download.roonlabs.net/builds/roonbridge-installer-linuxarmv8.sh
+bash roonbridge-installer-linuxarmv8.sh
+systemctl disable roonbridge
+
+sync
+reboot
