@@ -1,26 +1,29 @@
-#!/bin/sh
-# Script to stop default raspbian services, start audio services. But only in case no external storage connected (for dual purpose use) 
-# It will also (re)set some settings which will be applied from the first reboot now on. So it's good idea to reboot rpi after first time this script was executed 
+#!/bin/bash
+# Script to stop default raspbian services, start audio services. But only in case no external storage connected (for dual purpose use)
+# It will also (re)set some settings which will be applied from the first reboot now on. So it's good idea to reboot rpi after first time this script was executed
 # Further optimizations are executed by 20-tweaks.sh which is called from here.
-# 
+#
 # Please update LAN_IP to match your network where this streamer will be located to have automatic wifi poweroff feature working.
 #   - We assume usage of dhcp for ethernet interface here..
 
-LAN_IP='inet 192.168.0.'
-NFS_IP='192.168.0.2'
+#NFS_IP='192.168.0.2'
 
 # set cpu governor
 for CPU in 0 1 2 3 ; do
-  echo "performance" > /sys/devices/system/cpu/cpu${CPU}/cpufreq/scaling_governor
+  (echo "performance" > /sys/devices/system/cpu/cpu${CPU}/cpufreq/scaling_governor) 2>/dev/null
 done
 
+# https://hackmd.io/@cantfindagoodname/notes
+echo 0 > /proc/sys/kernel/randomize_va_space
+
 # stop all not needed
-systemctl stop exim4 netdata bluetooth cron openvpn-client@rpi4bkp1195 openvpn-client@rpi4bkp wpa_supplicant rsync "triggerhappy*" smartd hciuart systemd-timesyncd dbus.socket dbus rng-tools "systemd-journald*" systemd-journald systemd-journald.socket systemd-journald-audit.socket systemd-journald-dev-log.socket rsyslog syslog.socket systemd-tmpfiles-clean.timer systemd-tmpfiles-clean man-db.timer logrotate.timer apt-daily.timer apt-daily-upgrade.timer systemd-journald.socket systemd-journald alsa-state getty@tty1.service
+systemctl stop exim4 netdata bluetooth cron openvpn-client@rpi4bkp1195 openvpn-client@rpi4bkp wpa_supplicant rsync "triggerhappy*" smartd hciuart systemd-timesyncd dbus.socket dbus rng-tools "systemd-journald*" systemd-journald systemd-journald.socket systemd-journald-audit.socket systemd-journald-dev-log.socket rsyslog syslog.socket systemd-tmpfiles-clean.timer systemd-tmpfiles-clean man-db.timer logrotate.timer apt-daily.timer apt-daily-upgrade.timer systemd-journald.socket systemd-journald alsa-state getty@tty1.service networkaudiod systemd-udevd systemd-udevd-kernel.socket systemd-udevd-control.socket 2>/dev/null
 
 # let journald running
 #systemctl stop exim4 netdata bluetooth cron openvpn-client@rpi4bkp1195 openvpn-client@rpi4bkp wpa_supplicant rsync "triggerhappy*" smartd hciuart systemd-timesyncd dbus.socket dbus rng-tools systemd-tmpfiles-clean.timer systemd-tmpfiles-clean man-db.timer logrotate.timer apt-daily.timer apt-daily-upgrade.timer systemd-journald.socket systemd-journald alsa-state getty@tty1.service
 
 # roonbridge  logs will go to ramdisk
+systemctl stop roonbridge
 mkdir -p /dev/shm/RAATServer/Logs
 mkdir -p /dev/shm/RoonBridge/Logs
 mv /var/roon/RoonBridge/Logs /var/roon/RoonBridge/Logs.old
@@ -31,45 +34,51 @@ ln -s /dev/shm/RoonBridge/Logs /var/roon/RoonBridge/Logs
 # start network audio services
 #systemctl start mpd mpd.socket upmpdcli networkaudiod roonbridge
 # will start mpd later, after momunting nfs..
-systemctl start upmpdcli networkaudiod roonbridge
+#systemctl start upmpdcli networkaudiod roonbridge
+systemctl start roonbridge
 
 # flush firewalll
-iptables -P INPUT ACCEPT ; iptables -F INPUT
-iptables -F LOG_DROP ; iptables -X LOG_DROP
+iptables -P INPUT ACCEPT 2>/dev/null ; iptables -F INPUT 2>/dev/null
+iptables -F LOG_DROP 2>/dev/null ; iptables -X LOG_DROP 2>/dev/null
 
 sudo mount -o remount,size=32M /dev/shm
-#sudo mount -o remount,size=512M /dev/shm
 
-# give dhcpcd chance to setup eth0 during boot time
-UPTIME=$(awk -F '.' '{print $1}' /proc/uptime)
-if [ $UPTIME -lt 120 ] ; then
-  sleep 30	# 20 is enough on 1500MHz, 30 for 400MHz
-fi
+TIMEOUT=30
+ITER=0
 
-# if we got proper ip on ethernet (dhcpcd) then turn off wifi
-ETH=$(/sbin/ifconfig eth0 | grep -q "$LAN_IP" ; echo $?)
-if [ "$ETH" -eq 0 ] ; then
-  echo "FOUND configured eth0 , DISABLING wlan"
-  /sbin/ifconfig wlan0 down
-fi
+while [ $ITER -lt $TIMEOUT ] ; do
+  # ak mame adresu na ethernete (dhcpcd) tak vypni wifi
+  ETH=$(/sbin/ifconfig eth0 | egrep -q 'inet 192.168.0.|inet 172.|inet 10.' ; echo $?)
 
-
-for X in {1..3} ; do
-  NAS=$(ping -q -c 3 -W 10 $NFS_IP 2>&1 >/dev/null ; echo $? | egrep -v '^$')
-  if [ "$NAS" -eq 0 ] ; then
-    mount /storage-nfs
+  if [ "$ETH" -eq 0 ] ; then
+    echo "FOUND configured eth0 , DISABLING wlan"
+    /sbin/ifconfig wlan0 down 2>/dev/null
+    # required to avoid publishing service on wrong (wlan) ip
+    #systemctl restart upmpdcli
     break
   fi
-  echo "Mounting NFS: Try $X failed.."
+  sleep 1
+  (( ITER-- ))
 done
+
+
+#for X in {1..3} ; do
+#  NAS=$(ping -q -c 3 -W 10 $NFS_IP 2>&1 >/dev/null ; echo $? | egrep -v '^$')
+# if [ "$NAS" -eq 0 ] ; then
+#   mount /storage-nfs
+#   break
+# fi
+# echo "Mounting NFS: Try $X failed.."
+#done
 
 /usr/sbin/ntpdate sk.pool.ntp.org &
 
-systemctl start mpd mpd.socket
+#systemctl start mpd mpd.socket
 
 # disable HDMI video out
-/opt/vc/bin/tvservice -o
+#/opt/vc/bin/tvservice -o
 
+cd ~pi
 ./20-tweaks.sh
 
 
@@ -92,6 +101,7 @@ net.ipv4.tcp_no_metrics_save = 1
 net.core.netdev_max_backlog = 5000
 vm.overcommit_memory = 2
 vm.overcommit_ratio = 100
+vm.stat_interval = 120
 EOF
 
 echo "kernel.printk = 3 3 3 3" > /etc/sysctl.d/20-quiet-printk.conf
@@ -101,4 +111,3 @@ echo "kernel.printk = 3 3 3 3" > /etc/sysctl.d/20-quiet-printk.conf
 
 # we don't need rpi onboard audio
 echo "blacklist snd-soc-pcm512x" > /etc/modprobe.d/snd-soc-pcm512x.conf
-
