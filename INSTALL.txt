@@ -13,6 +13,10 @@ cp /boot/cmdline.txt /boot/cmdline.txt.dist
 cp /boot/config.txt /boot/config.txt.dist
 cp config.txt /boot/
 cp cmdline.txt /boot/
+mkdir /boot/dist.dtbfiles
+# next 2 lines does not work for older rpi4 , for safety commented out
+# cp /boot/bcm271*.dtb /boot/dist.dtbfiles/
+# cp boot/bcm2711-rpi-* /boot/
 cp babysit.sh ../
 chmod 755 ../babysit.sh
 cp babysit.service /etc/systemd/system/
@@ -26,6 +30,7 @@ cp 20-tweaks.sh ../
 cp hex2bin.sh ../
 cp psthread-rpi ../
 chmod 755 ../psthread-rpi
+mv /etc/systemd/system/rc-local.service.d/ttyoutput.conf /etc/systemd/system/rc-local.service.d/ttyoutput.conf.dist
 
 # RoonBridge install
 cd ~pi
