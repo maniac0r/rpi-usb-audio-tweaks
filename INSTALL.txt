@@ -1,4 +1,4 @@
-# 1) Either use pre-made SD card image from [SD_images](SD_images) folder
+# 1) Either use pre-made SD card image from SD_images folder
 
 
 # 2) Or manually install on fresh raspios11 64bit - run as root:
