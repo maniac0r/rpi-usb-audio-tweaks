@@ -241,23 +241,59 @@ tune_um3gg1h1u() {
 ###################################
 #
 
-set_kernelparams
+set_kernelparams 2>/dev/null
 
-remove_kernelmodules
+remove_kernelmodules 2>/dev/null
 
-# USB
+## USB
 renice_usb	-19
 set_realtime $P_XHCI		FIFO 99	pgrep
 cpu_affinity_usbxhci	0	# stay together with XHCI IRQ on CPU0
 
-# MMC SDcard
- echo $CPU1 > /proc/irq/40/smp_affinity
+## MMC SDcard
+ MMCIRQ=$(cat /proc/interrupts | egrep 'mmc0' |  sed 's/:.*//' | sed 's/^\s*//')
+ echo $CPU1 > /proc/irq/$MMCIRQ/smp_affinity
 
-# Ethernet
+ echo -n "mmc pids: "
+ for PID in `pgrep "irq/[0-9].*-mmc"` ; do
+   echo -n "$PID "
+   taskset -c -p 1 $PID
+ done
+ echo "."
+
+ pgrep -f  'mmcblk' |  xargs -I%% taskset -c -p 1 %%
+
+## KSM
+# dissable Kernel Same-page Merging to avoid latency
+if [ -f /sys/kernel/mm/ksm/run ] ; then
+  echo "KSM:"
+  echo 2 > /sys/kernel/mm/ksm/run 2>/dev/null
+fi
+
+## Ethernet
  cpu_affinity_eth0	3
- echo $CPU3  > /proc/irq/46/smp_affinity	# RPI4 ETH0 RX
- echo $CPU3 > /proc/irq/47/smp_affinity		# RPI4 ETH0 TX
 
+ RXIRQ=$(cat /proc/interrupts | egrep 'eth0$' | sed 's/:.*//' | sed 's/^\s*//' | head -n1)
+ TXIRQ=$(cat /proc/interrupts | egrep 'eth0$' | sed 's/:.*//' | sed 's/^\s*//' | tail -n1)
+
+ echo $CPU3 > /proc/irq/$RXIRQ/smp_affinity	# RPI4 ETH0 RX
+ echo $CPU3 > /proc/irq/$TXIRQ/smp_affinity	# RPI4 ETH0 TX
+
+ echo "put network work queues to cpu 3 (1-0-0-0)"
+ for F in `ls /sys/class/net/eth0/queues/*/xps_cpus` ; do echo 8 | sudo tee $F ; done
+
+
+## NFS
+echo "Affinity NFS"
+pgrep -f  'NFS' |  xargs -I%% taskset -c -p 1,3 %%
+
+# move what is possible to elsewhere
+echo "Tuna isolate"
+/usr/bin/tuna --cpus=0 --isolate
+
+# enabling this removes "resheduling interrupt"s from cpu1-3, but increases cpu0 avg jitter by 0,5ms
+echo  "Affinity USB:"
+cpu_affinity_usbxhci    0
 
 exit
 
