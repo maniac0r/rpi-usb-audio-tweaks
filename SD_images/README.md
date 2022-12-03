@@ -1,10 +1,9 @@
 Images require 8GB or bigger microSD card.
 
-  [Download](https://localhost.sk/dropzone/rpi4strm.img.xz)
+  [Download rpi4strm.img.xz](https://localhost.sk/dropzone/rpi4strm.img.xz) 550MB
 
-    MD5: 16f1ab7b3b5d77dea8d3341a0efa40e8  rpi4strm.img.xz
-    SHA256: a60de1b9853aa66ce46face286c827460a7f6f1ad6fc2c1caf9fe75dbe85b7af  rpi4strm.img.xz
-
+    MD5: 786600b282ff637f01df25a88559fa1b  rpi4strm.img.xz
+    HA256: f2a37320b133f19313cb1a8ae00629663d0c8b7478cc77bd154db7efb068729c  rpi4strm.img.xz
 
 Use your favourite image burner , dhcp is enabled , USB Audio device should be connected before RPi power-on.
 
