@@ -6,5 +6,8 @@ Images require 8GB or bigger microSD card.
     HA256: f2a37320b133f19313cb1a8ae00629663d0c8b7478cc77bd154db7efb068729c  rpi4strm.img.xz
 
 Use your favourite image burner , dhcp is enabled , USB Audio device should be connected before RPi power-on.
+Default ssh login is "pi" and password "raspberry" , please change it after login via passwd commmand.
 
-# **!!! Warning !!! overclocking** may be used depending on release, use good cooling (can be passive if it's good one) **you can edit this on SD card in  /boot/config.txt before inserting card to RPi**
+# !!! Warning !!!
+**overclocking** may be used depending on release, use good cooling (can be passive if it's good one) **you can override this** on SD card in  /boot/config.txt before inserting card to RPi by commenting out two lines starting with: **arm_freq=** and **over_voltage=**
+
