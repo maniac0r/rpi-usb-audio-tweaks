@@ -18,7 +18,7 @@ sdram_schmoo=0x021e882c
 #over_voltage_sdram_i=-8
 #over_voltage_sdram_c=-8
 over_voltage_sdram=-8
-
+kernel=kernel8.img-6.1-rc3-RT-nodebug-gcc_kinetic-optimizedO3
 
 # audiophile tuning
 force_turbo=1
@@ -51,5 +51,5 @@ enable_uart=0
 #kernel=kernel8_rt.img
 
 gpu_mem=4
-initramfs initramfs-linux.img followkernel
+#initramfs initramfs-linux.img followkernel
 disable_splash=1
