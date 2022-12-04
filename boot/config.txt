@@ -35,9 +35,8 @@ enable_uart=0
 arm_64bit=1
 
 
-
-kernel8.img-6.1-rc3-RT-nodebug-gcc_kinetic-optimizedO3
-
+kernel=kernel8.img-6.1-rc3-RT-nodebug-gcc_kinetic-optimizedO3
+#kernel=kernel8.img-6.1-rc3-RT-debug-gcc_kinetic-optimizedO3
 
 gpu_mem=4
 disable_splash=1
