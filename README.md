@@ -1,7 +1,7 @@
 This repository is built as part of my journey to improve Raspberry Pi4 used as Digital Streamer using USB output.
 
 HW Supported:
-- RPi4 and RPi3
+- RPi**4b**
 - Standard Async USB2.0 Audio
 - Onboard ethernet
 
