@@ -50,5 +50,5 @@ enable_uart=0
 #kernel=kernel8_rt.img
 
 gpu_mem=4
-initramfs initramfs-linux.img followkernel
+#initramfs initramfs-linux.img followkernel
 disable_splash=1
