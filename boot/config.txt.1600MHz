@@ -28,7 +28,7 @@ isp_freq=200
 v3d_freq=200
 hevc_freq=200
 #
-arm_freq_min=1500
+arm_freq_min=1600
 # 
 # [-18,8] which equates to the range [0.8V, 1.4V] with 0.025V steps
 #over_voltage=-10
