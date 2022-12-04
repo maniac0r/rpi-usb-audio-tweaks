@@ -17,7 +17,7 @@
 ##over_voltage_sdram_i=-16
 ##over_voltage_sdram_c=-16
 kernel=kernel8.img-6.1-rc3-RT-nodebug-gcc_kinetic-optimizedO3
-kernel=kernel8.img-6.1-rc3-RT-debug-gcc_kinetic-optimizedO3
+#kernel=kernel8.img-6.1-rc3-RT-debug-gcc_kinetic-optimizedO3
 
 # audiophile tuning
 force_turbo=0
