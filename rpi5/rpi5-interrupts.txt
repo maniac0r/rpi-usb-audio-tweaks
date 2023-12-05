@@ -1,3 +1,5 @@
+ # The Star at the beginning indicates the IRQ is accepting CPU affinity mask
+
             CPU0       CPU1       CPU2       CPU3       
    9:          0          0          0          0     GICv2  25 Level     vgic
   11:          0          0          0          0     GICv2  30 Level     kvm guest ptimer
