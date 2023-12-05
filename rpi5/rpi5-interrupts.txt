@@ -1,0 +1,54 @@
+            CPU0       CPU1       CPU2       CPU3       
+   9:          0          0          0          0     GICv2  25 Level     vgic
+  11:          0          0          0          0     GICv2  30 Level     kvm guest ptimer
+  12:          0          0          0          0     GICv2  27 Level     kvm guest vtimer
+  13:   12944491   13496141   18255912   19084670     GICv2  26 Level     arch_timer
+* 14:     179874       1203          0          0     GICv2  65 Level     107c013880.mailbox
+* 15:          5          0          0          0     GICv2 153 Level     uart-pl011
+* 21:          0          0          0          0     GICv2 118 Level     DMA IRQ
+* 22:          0          0          0          0     GICv2 119 Level     DMA IRQ
+* 23:          0          0          0          0     GICv2 120 Level     DMA IRQ
+* 24:          0          0          0          0     GICv2 121 Level     DMA IRQ
+  27:          0          0          0          0     GICv2  48 Level     arm-pmu
+  28:          0          0          0          0     GICv2  49 Level     arm-pmu
+  29:          0          0          0          0     GICv2  50 Level     arm-pmu
+  30:          0          0          0          0     GICv2  51 Level     arm-pmu
+* 38:       2975          0          0          0     GICv2 308 Level     ttyS0
+* 39:          0          0          0          0     GICv2 261 Level     PCIe PME, aerdrv
+ 107:     614818          0          0          0  rp1_irq_chip   6 Level     eth0
+ 132:   16624348          0          0          0  rp1_irq_chip  31 Edge      xhci-hcd:usb1
+ 137:    2104098          0          0          0  rp1_irq_chip  36 Edge      xhci-hcd:usb3
+ 141:          0          0          0          0  rp1_irq_chip  40 Level     dw_axi_dmac_platform
+*162:     276248       5273          0          0     GICv2 305 Level     mmc0
+*163:    2229024      30417          0          0     GICv2 306 Level     mmc1
+*164:    6113628      74200          0          0     GICv2 281 Level     v3d_core0
+*165:      41520        234          0          0     GICv2 282 Level     v3d_hub
+ 166:          0          0          0          0  107d508500.gpio  20 Edge      pwr_button
+ 167:         58          0          0          0  intc@7d508380   1 Level     107d508200.i2c
+ 168:          2          0          0          0  intc@7d508380   2 Level     107d508280.i2c
+*169:          0          0          0          0     GICv2 150 Level     107d004000.spi
+ 170:    5123109          0          0          0  interrupt-controller@7c502000   2 Level     107c580000.hvs
+ 171:          0          0          0          0  interrupt-controller@7c502000   9 Level     107c580000.hvs
+ 172:          0          0          0          0  interrupt-controller@7c502000  16 Level     107c580000.hvs
+ 173:          0          0          0          0  interrupt-controller@7d510600   7 Level     vc4 hdmi hpd connected
+ 174:          0          0          0          0  interrupt-controller@7d510600   8 Level     vc4 hdmi hpd disconnected
+ 175:          0          0          0          0  interrupt-controller@7d510600   2 Level     vc4 hdmi cec rx
+ 176:          0          0          0          0  interrupt-controller@7d510600   1 Level     vc4 hdmi cec tx
+ 177:          0          0          0          0  interrupt-controller@7d510600  14 Level     vc4 hdmi hpd connected
+ 178:          0          0          0          0  interrupt-controller@7d510600  15 Level     vc4 hdmi hpd disconnected
+ 179:          0          0          0          0  interrupt-controller@7d510600  12 Level     vc4 hdmi cec rx
+ 180:          0          0          0          0  interrupt-controller@7d510600  11 Level     vc4 hdmi cec tx
+ 181:          0          0          0          0  interrupt-controller@7c502000   1 Level     107c500000.mop
+ 182:          0          0          0          0  interrupt-controller@7c502000   0 Level     107c501000.moplet
+*183:    4542808      53700          0          0     GICv2 133 Level     vc4 crtc
+*184:          0          0          0          0     GICv2 142 Level     vc4 crtc
+*185:          0          0          0          0     GICv2 104 Level     pispbe
+*186:          0          0          0          0     GICv2 130 Level     1000800000.codec
+ IPI0:     30321      73238      74751      63454       Rescheduling interrupts
+ IPI1: 106690312  107137279  112837833  116424509       Function call interrupts
+ IPI2:         0          0          0          0       CPU stop interrupts
+ IPI3:         0          0          0          0       CPU stop (for crash dump) interrupts
+ IPI4:         0          0          0          0       Timer broadcast interrupts
+ IPI5:     20349      13494      15922      13629       IRQ work interrupts
+ IPI6:         0          0          0          0       CPU wake-up interrupts
+ Err:          0
