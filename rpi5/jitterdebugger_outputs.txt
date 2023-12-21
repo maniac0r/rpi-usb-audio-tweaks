@@ -1,14 +1,24 @@
 # 2023-12-21
-# arm_freq=3000
-# force_turbo not enabled
-# playing DSD256
 # kernel: Linux rpi5 6.1.68-rt20-v8mnc4f+ #28 SMP PREEMPT_RT Tue Dec 19 23:49:37 UTC 2023 aarch64 GNU/Linux
+# arm_freq=3000
+# playing DSD256
+# force_turbo not enabled
 root@rpi5:/home/maniac# jitterdebugger -v -a0-3
 affinity: 0-3 = 4 [0xF]
 T: 0 ( 2307) A: 0 C:     83496 Min:         1 Avg:    1.86 Max:        29
 T: 1 ( 2308) A: 1 C:     83487 Min:         1 Avg:    1.69 Max:       135
 T: 2 ( 2309) A: 2 C:     83478 Min:         1 Avg:    1.61 Max:        55
 T: 3 ( 2310) A: 3 C:     83469 Min:         1 Avg:    1.80 Max:        62
+
+
+# force_turbo=1
+root@rpi5:/home/maniac# jitterdebugger -v -a0-3
+affinity: 0-3 = 4 [0xF]
+T: 0 ( 1706) A: 0 C:    100496 Min:         1 Avg:    1.72 Max:        19
+T: 1 ( 1707) A: 1 C:    100489 Min:         1 Avg:    1.59 Max:        15
+T: 2 ( 1708) A: 2 C:    100483 Min:         1 Avg:    1.91 Max:        63
+T: 3 ( 1709) A: 3 C:    100476 Min:         1 Avg:    1.76 Max:        57
+
 
 # Notes:
 # kernel modules enabled (no modules present) to avoid fan spinning at max speed (TODO)
