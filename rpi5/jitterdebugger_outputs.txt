@@ -44,3 +44,13 @@ T: 0 ( 3103) A: 0 C:    664476 Min:         0 Avg:    1.02 Max:        19
 T: 1 ( 3104) A: 1 C:    664469 Min:         0 Avg:    1.03 Max:        15
 T: 2 ( 3105) A: 2 C:    664462 Min:         0 Avg:    1.07 Max:       111
 T: 3 ( 3106) A: 3 C:    664456 Min:         0 Avg:    1.03 Max:        15
+
+
+# Linux rpi5 6.1.68-rt20-v8mnc5+ #34 SMP PREEMPT_RT Thu Dec 21 20:31:23 UTC 2023 aarch64 GNU/Linux
+# nodebug: removed latencytop support
+root@rpi5:/home/maniac/audio# jitterdebugger -v -a0-3
+affinity: 0-3 = 4 [0xF]
+T: 0 ( 2837) A: 0 C:    111201 Min:         0 Avg:    1.01 Max:         7
+T: 1 ( 2838) A: 1 C:    111194 Min:         0 Avg:    1.04 Max:        15
+T: 2 ( 2839) A: 2 C:    111187 Min:         0 Avg:    1.09 Max:        93
+T: 3 ( 2840) A: 3 C:    111181 Min:         0 Avg:    1.03 Max:        11
