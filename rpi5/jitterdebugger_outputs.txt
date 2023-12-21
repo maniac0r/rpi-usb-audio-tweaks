@@ -1,5 +1,6 @@
 # 2023-12-21
 # arm_freq=3000
+# force_turbo not enabled
 # playing DSD256
 # kernel: Linux rpi5 6.1.68-rt20-v8mnc4f+ #28 SMP PREEMPT_RT Tue Dec 19 23:49:37 UTC 2023 aarch64 GNU/Linux
 root@rpi5:/home/maniac# jitterdebugger -v -a0-3
