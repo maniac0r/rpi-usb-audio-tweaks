@@ -19,10 +19,28 @@ T: 1 ( 1707) A: 1 C:    100489 Min:         1 Avg:    1.59 Max:        15
 T: 2 ( 1708) A: 2 C:    100483 Min:         1 Avg:    1.91 Max:        63
 T: 3 ( 1709) A: 3 C:    100476 Min:         1 Avg:    1.76 Max:        57
 
-
 # Notes:
 # kernel modules enabled (no modules present) to avoid fan spinning at max speed (TODO)
 # serial console enabled (move to netconsole?)
 # audio HATs not supported (compliation issue)
 # most of RPi5 HW is still supported in mnc4f ver.
 
+#
+# modules disabled, fan at 9k rpm :/
+# temp1:        +50.1°C  (crit = +110.0°C)
+root@rpi5:/home/maniac# jitterdebugger -v -a0-3
+affinity: 0-3 = 4 [0xF]
+T: 0 ( 1312) A: 0 C:     86597 Min:         1 Avg:    1.26 Max:        50
+T: 1 ( 1313) A: 1 C:     86588 Min:         1 Avg:    1.39 Max:        67
+T: 2 ( 1314) A: 2 C:     86580 Min:         1 Avg:    1.23 Max:        54
+T: 3 ( 1315) A: 3 C:     86571 Min:         1 Avg:    1.27 Max:        95
+#
+
+# Linux rpi5 6.1.68-rt20-v8mnc4g+ #31 SMP PREEMPT_RT Thu Dec 21 18:08:50 UTC 2023 aarch64 GNU/Linux
+# modules enabled, ramdisk enabled, few more things disabled
+root@rpi5:/home/pi_rpi4/roonbridge# jitterdebugger -v -a0-3
+affinity: 0-3 = 4 [0xF]
+T: 0 ( 3103) A: 0 C:    664476 Min:         0 Avg:    1.02 Max:        19
+T: 1 ( 3104) A: 1 C:    664469 Min:         0 Avg:    1.03 Max:        15
+T: 2 ( 3105) A: 2 C:    664462 Min:         0 Avg:    1.07 Max:       111
+T: 3 ( 3106) A: 3 C:    664456 Min:         0 Avg:    1.03 Max:        15
