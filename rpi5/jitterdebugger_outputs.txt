@@ -1,0 +1,17 @@
+# 2023-12-21
+# arm_freq=3000
+# playing DSD256
+# kernel: Linux rpi5 6.1.68-rt20-v8mnc4f+ #28 SMP PREEMPT_RT Tue Dec 19 23:49:37 UTC 2023 aarch64 GNU/Linux
+root@rpi5:/home/maniac# jitterdebugger -v -a0-3
+affinity: 0-3 = 4 [0xF]
+T: 0 ( 2307) A: 0 C:     83496 Min:         1 Avg:    1.86 Max:        29
+T: 1 ( 2308) A: 1 C:     83487 Min:         1 Avg:    1.69 Max:       135
+T: 2 ( 2309) A: 2 C:     83478 Min:         1 Avg:    1.61 Max:        55
+T: 3 ( 2310) A: 3 C:     83469 Min:         1 Avg:    1.80 Max:        62
+
+# Notes:
+# kernel modules enabled (no modules present) to avoid fan spinning at max speed (TODO)
+# serial console enabled (move to netconsole?)
+# audio HATs not supported (compliation issue)
+# most of RPi5 HW is still supported in mnc4f ver.
+
