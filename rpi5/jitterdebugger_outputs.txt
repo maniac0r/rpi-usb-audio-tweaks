@@ -54,3 +54,13 @@ T: 0 ( 2837) A: 0 C:    111201 Min:         0 Avg:    1.01 Max:         7
 T: 1 ( 2838) A: 1 C:    111194 Min:         0 Avg:    1.04 Max:        15
 T: 2 ( 2839) A: 2 C:    111187 Min:         0 Avg:    1.09 Max:        93
 T: 3 ( 2840) A: 3 C:    111181 Min:         0 Avg:    1.03 Max:        11
+
+
+# Linux rpi5 6.1.68-rt20-v8mnc5+ #37 SMP PREEMPT_RT Thu Dec 21 23:15:41 UTC 2023 aarch64 GNU/Linux
+# added skew_tick=1 into cmdline.txt to avoid smp lock contention ( https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux_for_real_time/8/html/optimizing_rhel_8_for_real_time_for_low_latency_operation/assembly_setting-cpu-affinity-on-rhel-for-real-time_optimizing-rhel8-for-real-time-for-low-latency-operation )
+root@rpi5:/home/maniac/audio# jitterdebugger -v -a0-3
+affinity: 0-3 = 4 [0xF]
+T: 0 (11368) A: 0 C:    370870 Min:         0 Avg:    1.02 Max:        18
+T: 1 (11369) A: 1 C:    370863 Min:         0 Avg:    1.40 Max:        35
+T: 2 (11370) A: 2 C:    370856 Min:         0 Avg:    1.05 Max:        47
+T: 3 (11371) A: 3 C:    370848 Min:         0 Avg:    1.03 Max:        36
