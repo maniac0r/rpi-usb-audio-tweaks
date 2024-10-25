@@ -3,8 +3,8 @@
 # Based on internal RPi SoC uptime timer, identify boot reason: reboot/shutdown
 # Use cases:
 #   - no NTP available
-#   - no persisten log available
-# Parameter SECONDS defines thresholld after which we consider resaon to be reboot
+#   - no persistent log available
+# Parameter SECONDS defines threshold after which we consider resaon to be reboot
 
 SECONDS=60
 
