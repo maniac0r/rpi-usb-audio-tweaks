@@ -27,7 +27,10 @@ prepare_dev_env() {
     joe \
     colordiff \
     ncdu \
-    mc
+    mc \
+    clang \
+    llvm \
+    lld
 }
 
 
