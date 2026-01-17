@@ -1,14 +1,16 @@
-With RPi5 and kernel6.17 (mid-2025) or newer, it is now possible to natively route USB XHCI to any core (e.g. previous limitation with core0 is now gone, yay!)
+```
+With RPi5 and kernel6.17 (mid-2025) or newer, it is now possible to natively
+  route USB XHCI to any core (e.g. previous limitation with core0 is now gone, yay!)
 
-
-Besides allowing to have isolated USB core, it also allows much simpler CPU pinning - we now boot with isolated cores1-3 and just assign USB,Audio,NIC RT tasks to teir dedicated cores, e.g.:
+Besides allowing to have isolated USB core, it also allows much simpler CPU pinning we
+  now boot with isolated cores1-3 and just assign USB,Audio,NIC RT tasks to teir dedicated cores, e.g.
 - core0 Anything else
 - core1 USB XHCI
 - core2 Audio app RT thread (RoonBridge/MPD..)
 - core3 Network Interface
 
-
 Some notable kernel config changes from previous versions:
+
 - support for all RPi5 internal HW
 - ARM 16k Pages
 - kernel compilation optimized for RPI5 Cortex A76 
@@ -39,5 +41,5 @@ Quick install overview (BACKUP first!):
 
 - finally reboot
 
-
-TODO: cleanup ... as always.. ;)
+```
+TODO: cleanup ... as always..
