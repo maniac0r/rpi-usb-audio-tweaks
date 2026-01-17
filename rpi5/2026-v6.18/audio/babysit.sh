@@ -15,6 +15,11 @@ AFFINITY_RAAT_RT="2"
 #AFFINITY_RAAT_RT="1-3"
 AFFINITY_MPD_RT="2"
 
+#PRIO_AUDIOAPP="95"
+PRIO_AUDIOAPP="99"
+SCHED_AUDIOAPP="FIFO"
+
+
 #STR_LOG=/dev/null
 STR_LOG="&2"
 
@@ -203,7 +208,7 @@ ROON_PID=$(ps axHo rtprio,lwp,command | grep -E '^\s*[0-9].*RAATServer' | awk '{
 
   if [ $ROON_UP -eq 1 ] && ([ -z "$I0" ] || [ "$I" -ge "$RETRY" ]) ; then
     if [ "$ROON_PID" != "$ROON_LAST_PID" ] ; then
-      set_realtime $P_RAAT   FIFO 95 elevate && raat_rt_affinity "$AFFINITY_RAAT_RT"
+      set_realtime $P_RAAT   ${SCHED_AUDIOAPP} ${PRIO_AUDIOAPP} elevate && raat_rt_affinity "$AFFINITY_RAAT_RT"
       I0=$?
       I=0
       ROON_LAST_PID=$ROON_PID
@@ -213,7 +218,7 @@ ROON_PID=$(ps axHo rtprio,lwp,command | grep -E '^\s*[0-9].*RAATServer' | awk '{
     fi
   elif [ $MPD_UP -eq 1 ] && ([ -z "$J0" ] || [ "$J" -ge "$RETRY" ]) ; then
     if [ "$MPD_PID" != "$MPD_LAST_PID" ] ; then
-      set_realtime $P_MPD    FIFO 95 elevate # && mpd_rt_affinity "$AFFINITY_MPD_RT"
+      set_realtime $P_MPD    ${SCHED_AUDIOAPP} ${PRIO_AUDIOAPP} elevate # && mpd_rt_affinity "$AFFINITY_MPD_RT"
       J0=$?
       J=0
       MPD_LAST_PID=$MPD_PID

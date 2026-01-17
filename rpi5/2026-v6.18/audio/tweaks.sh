@@ -25,6 +25,21 @@ CPU2=4	# 0100
 CPU3=8	# 1000
 
 
+#PRIO_AUDIOAPP="95"
+PRIO_AUDIOAPP="99"
+SCHED_AUDIOAPP="FIFO"
+CORE_AUDIOAPP="2"
+
+PRIO_USB="99"
+SCHED_USB="FIFO"
+CORE_USB="1"
+
+
+PRIO_NIC="99"
+SCHED_NIC="FIFO"
+CORE=NIC="3"
+
+
 #set -x
 
 cpu_affinity_eth0() {
@@ -58,11 +73,11 @@ cpu_affinity_upmpdcli() {
 #  raat all
 cpu_affinity_raat() {
   # pozor, z nejakeho dovodu sa musi pouzit taskset uz pri startovani raatu, takze uprava je hlavne v startup skripte potrebna..
-set -x
-  echo "AFFINITY RAAT OTHER THREADS" >&2
+#set -x
+  echo "### cpu_affinity_raat" >&2
   CPU="$1"
   pgrep -f RAATServer | xargs -I%% /usr/bin/taskset -a -c -p $CPU %%
-set +x
+#set +x
 }
 
 # raat rt
@@ -89,6 +104,7 @@ cpu_affinity_squeeze() {
 }
 
 cpu_affinity_trash() {
+  echo "### cpu_affinity_trash"
   # trash goes to this cpu
   /usr/bin/taskset -a -c -p $1 $(pidof RoonBridgeHelper)
   /usr/bin/taskset -a -c -p $1 $(pidof processreaper)
@@ -151,6 +167,7 @@ cpu_affinity_trash() {
 }
 
 cpu_affinity_trash_b() {
+  echo "### cpu_affinity_trash_b"
   # trash goes to this cpu
   /usr/bin/taskset -a -c -p $1 $(pidof RoonBridgeHelper)
   /usr/bin/taskset -a -c -p $1 $(pidof processreaper)
@@ -215,6 +232,7 @@ cpu_affinity_trash_b() {
 
 renice_usb() {
   # USB BUS
+  echo "### renice_usb:"
   /usr/bin/renice $1 -p $(pgrep "$P_XHCI")
 }
 
@@ -223,6 +241,7 @@ renice_mpd() {
 }
 
 renice_raat() {
+  echo "### renice_raat:"
   /usr/bin/renice $1 -p $(pgrep -w -f RAATServer)
 }
 
@@ -240,12 +259,14 @@ renice_squeeze() {
 }
 
 renice_eth0() {
+  echo "### renice_eth0"
   # ETHERNET
   #pgrep "irq\/.*-eth0" | xargs /usr/bin/renice $1		# RPi4
   pgrep "${P_ETH}" | xargs /usr/bin/renice $1		# RPi5
 }
 
 renice_eth_intel() {
+  echo "### renice_eth_intel"
   # ETHERNET
   #pgrep "irq\/.*-eth0" | xargs /usr/bin/renice $1		# RPi4
   pgrep "${P_ETH_INTEL}" | xargs /usr/bin/renice $1		# RPi5
@@ -266,13 +287,20 @@ renice_eth_intel() {
 # m = Scheduling >> {FIFO|RR}
 # p = Priority   >> {0-99}
 
+realtime_eth_prio() {
+  echo "### realtime_eth_prio"
+  PIDS=$(pgrep "${P_ETH_INTEL}") 
+  echo "$PIDS" | xargs -n1 chrt -f -p $1
+}
+
 realtime_usb_raat_hpq_mpd() {
+  echo "### realtime_usb_raat_hpq_mpd"
 #  /home/pi/roonbridge/roon-realtime.sh -p 99 -m FIFO -b n -r y -d y -u n -q y -e n -x y
   # USB BUS (lebo skript hore asi nezafunguje?)
   # FIFO prio 99 (highest)
   #chrt -f -p 99 $(pgrep "$P_XHCI") >> $STR_LOG
   #pgrep "irq\/.*-xhci-hcd:usb" | xargs -n1 chrt -f -p 98
-  pgrep "$P_XHCI" | xargs -n1 chrt -f -p 99
+  pgrep "$P_XHCI" | xargs -n1 chrt -f -p ${PRIO_USB}
   #chrt -p $(pgrep "$P_XHCI") >> $STR_LOG
   pgrep "$P_XHCI" | xargs -n1 chrt -p
   # ETH lowest priority, round robin
@@ -289,6 +317,7 @@ realtime_usb_raat_hpq_mpd() {
 # $4 = pidof/pgrep method
 # # # # # # # # # # 
 set_realtime() {
+        echo -n "### set_realtime \"$1\" \"$2\" \"$3\" \"$4\"	-	"
         if [ "$4" == "pgrep" ] ; then
           GETPID="pgrep -f"
         else
@@ -307,31 +336,37 @@ set_realtime() {
 	   INT_ROWS=0
            for p_id in $ARR_PID;
              do
-#	echo "DEBUG p_id: $p_id"
-#               echo "## Process : $(tail /proc/$($GETPID $1)/task/$p_id/comm) | PID = $p_id" >> $STR_LOG
-                                chrt $SCHED -p $3 $p_id >> $STR_LOG
-                                chrt -p $p_id >> $STR_LOG
-                                INT_ROWS=$(($INT_ROWS + 1));
+               # echo "DEBUG p_id: $p_id"
+               # echo "## Process : $(tail /proc/$($GETPID $1)/task/$p_id/comm) | PID = $p_id" >> $STR_LOG
+               chrt $SCHED -p $3 $p_id >> $STR_LOG
+               chrt -p $p_id >> $STR_LOG
+               INT_ROWS=$(($INT_ROWS + 1));
              done
              return
         fi
-             
-             
-                [[ -d /proc/$($GETPID $1)/task ]] || return 1
-                ARR_PID=$(ls /proc/$($GETPID $1)/task)
-#                [[ "x${ARR_PID}" == "x" ]] && return
-                INT_ROWS=0
-                for p_id in $ARR_PID;
-                        do
-                                echo "## Process : $(tail /proc/$($GETPID $1)/task/$p_id/comm) | PID = $p_id" >> $STR_LOG
-                                chrt -a $SCHED -p $3 $p_id >> $STR_LOG
-                                chrt -a -p $p_id >> $STR_LOG
-                                INT_ROWS=$(($INT_ROWS + 1));
-                        done
-                echo "## -----------------------------------------------------------------" >> $STR_LOG
-                echo "## Parent Process [$1] >> $INT_ROWS child process updated..." >> $STR_LOG
-                echo "## -----------------------------------------------------------------" >> $STR_LOG
-                echo "- - - - " >> $STR_LOG
+
+        #echo "debug:/proc/$($GETPID $1)/task"
+        for TPID in $($GETPID $1) ; do
+          TPID2=$(echo "$TPID" | sed 's/\/.*//' )
+          [[ -d /proc/$TPID2/task ]] || return 1
+          ARR_PID=$(ls /proc/$TPID2/task)
+          #[[ "x${ARR_PID}" == "x" ]] && return
+          INT_ROWS=0
+          for p_id in $ARR_PID;
+            do
+              echo "## Process : $(tail /proc/$TPID2/task/$p_id/comm) | PID = $p_id" >> $STR_LOG
+              echo -n "| PID:$p_id SCHED:$SCHED PRIO:$3"
+              chrt -a $SCHED -p $3 $p_id >> $STR_LOG
+              chrt -a -p $p_id >> $STR_LOG
+              INT_ROWS=$(($INT_ROWS + 1));
+            done
+          echo "## -----------------------------------------------------------------" >> $STR_LOG
+          echo "## Parent Process [$1] >> $INT_ROWS child process updated..." >> $STR_LOG
+          echo "## -----------------------------------------------------------------" >> $STR_LOG
+          echo "- - - - " >> $STR_LOG
+
+          done
+	  echo ""               
 }
 
 # chceme ci nie??
@@ -342,6 +377,7 @@ set_realtime() {
 #}
 
 set_kernelparams() {
+   echo "### set_kernelparams"
    #  kernel workqueues moved away from isolated core to cpu1.
 
   # echo 5000000 > /proc/sys/kernel/sched_migration_cost_ns
@@ -350,7 +386,7 @@ set_kernelparams() {
   # echo 1000000 > /proc/sys/kernel/sched_latency_ns
   # echo 100000  > /proc/sys/kernel/sched_min_granularity_ns
   #echo 225000  > /proc/sys/kernel/sched_min_granularity_ns
-  # echo 25000   > /proc/sys/kernel/sched_wakeup_granularity_ns
+  # echo 25000  > /proc/sys/kernel/sched_wakeup_granularity_ns
    echo -1      > /proc/sys/kernel/sched_rt_runtime_us
    echo 50      > /proc/sys/net/core/busy_read
    echo 50      > /proc/sys/net/core/busy_poll
@@ -368,13 +404,14 @@ set_kernelparams() {
 }
 
 set_kernelparams_affinity() {
+   echo "### set_kernelparams_affinity"
    echo 1 > /sys/bus/workqueue/devices/writeback/cpumask
    echo 1 > /sys/devices/virtual/workqueue/blkcg_punt_bio/cpumask
    echo 1 > /sys/devices/virtual/workqueue/cpumask
 }
 
 remove_kernelmodules() {
-  echo -n "Removing unused kernel modules:"
+  echo -n "### Removing unused kernel modules:"
   if [ -z "$(ifconfig | grep wlan)" ] ; then
     echo "no wlan interface found, will remove wifi related kernel modules too."
     WIFI=""
@@ -399,7 +436,7 @@ remove_kernelmodules() {
 
 affinity_isolcpu0() {
   # move what is possible to elsewhere
-  echo "Tuna isolate"
+  echo "### Tuna isolate"
   /usr/bin/tuna --cpus=0 --isolate
 }
 
@@ -450,9 +487,7 @@ tune_um3gg1h1u() {
 ###################################
 #
 
-set_kernelparams 2>/dev/null
-#set_kernelparams_affinity 2>/dev/null
-#remove_kernelmodules
+
 
 # move all from cpu0 elsewhere
 # .. disabled as ressheduling to cpu1 occurs, not sure why
@@ -462,39 +497,10 @@ set_kernelparams 2>/dev/null
 #/usr/bin/taskset -c -p 0-3 $(pgrep -f rcu_preempt)
 #/usr/bin/taskset -c -p 0-3 $(pgrep "rcub/0")
 
-# USB
-echo "USB:"
-renice_usb	-19
-set_realtime $P_XHCI		FIFO 97	pgrep
-cpu_affinity_usbxhci    1       # stay together with XHCI IRQ on CPU1 (taskset)
-
-# LOWEST AVERAGE JITTER ON CPU0 & OVERALL (avoiding irq reschduling)
-# 2022-04-02 cpu0 isolated (usb) but xhci hcd also on core0 :
-# root@rpi4strm:/home/pi# ./measure_jitter
-# affinity: 0-3 = 4 [0xF]
-# T: 0 ( 8149) A: 0 C:     30190 Min:         3 Avg:    4.84 Max:        44
-# T: 1 ( 8150) A: 1 C:     30175 Min:         3 Avg:    4.59 Max:        18
-# T: 2 ( 8151) A: 2 C:     30161 Min:         3 Avg:    4.29 Max:        99
-# T: 3 ( 8152) A: 3 C:     30146 Min:         3 Avg:    4.09 Max:        20
-# posluch:
-##cpu_affinity_usbxhci	0	# stay together with XHCI IRQ on CPU0
-#cpu_affinity_usbxhci	1	# stay together with XHCI IRQ on CPU0
-
-# LOWEST MAX JITTER OVERALL
-# 2022-04-02 cpu0 isolated (usb) but xhci hcd on cores 1,2,3 :
-# root@rpi4strm:/home/pi# ./measure_jitter
-# affinity: 0-3 = 4 [0xF]
-# T: 0 ( 6153) A: 0 C:     29189 Min:         4 Avg:    4.89 Max:        17
-# T: 1 ( 6154) A: 1 C:     29174 Min:         3 Avg:    4.58 Max:        31
-# T: 2 ( 6155) A: 2 C:     29160 Min:         3 Avg:    4.45 Max:        34
-# T: 3 ( 6156) A: 3 C:     29145 Min:         3 Avg:    4.36 Max:        35
-# posluch:
-##cpu_affinity_usbxhci	1,2,3
-###taskset -c -p 1,2,3 `pgrep -f  xhci_hcd`
 
 # MMC SDcard
 mmc_affinity() {
-  echo "MMC:"
+  echo "### mmc_affinity MMC:"
   ##echo $CPU1 > /proc/irq/40/smp_affinity
   IRQ=`cat /proc/interrupts | grep mmc |awk '{print $1}' | tr -d :`
   echo $CPU0 > /proc/irq/$IRQ/smp_affinity
@@ -513,6 +519,88 @@ mmc_affinity() {
   pgrep -f  'mmcblk' |  xargs -I%% taskset -c -p 0 %%
 }
 #mmc_affinity
+
+# RAAT
+affinity_raat() {
+  echo "### Affinity RAAT:"
+  #cpu_affinity_raat	1,2,3
+  cpu_affinity_raat	0
+  cpu_affinity_raat_rt	${CORE_AUDIOAPP}
+  renice_raat		-18
+  #set_realtime $P_RAAT	FIFO 93 elevate
+}
+
+affinity_mpd() {
+  echo "### Affinity mpd:"
+  cpu_affinity_mpd	1,2,3
+  #cpu_affinity_sqeeze	2
+  #cpu_affinity_upmpdcli	1
+  echo "Affinity others:"
+  cpu_affinity_trash	0
+  # 
+}
+
+affinity_nfs() {
+  # NFS
+  echo "### Affinity NFS"
+  pgrep -f  'NFS' |  xargs -I%% taskset -c -p 0,3 %%
+}
+
+# RPi5 mask is all cpus: f - not possible to change
+affinity_eth0() {
+  echo "### affinity_eth0"
+  DECMASK=$1
+  # this part is RPi4 only
+  ## ETH0
+  # echo -n "eth0 irqs: "
+  # for IRQ in `cat /proc/interrupts | grep eth0 |awk '{print $1}' | tr -d :` ; do
+  #   #echo $CPU3 > /proc/irq/54/smp_affinity		# RPI4 ETH0 RX
+  #   #echo $CPU3 > /proc/irq/55/smp_affinity		# RPI4 ETH0 TX
+  #   echo -n "$IRQ "
+  #   #cat /proc/irq/$IRQ/smp_affinity
+  #   echo $DECMASK  > /proc/irq/$IRQ/smp_affinity
+  # done  
+  # echo "."
+
+  echo "put network work queues to cpu 3 (1-0-0-0)"
+  #for F in `ls /sys/class/net/eth0/queues/*/xps_cpus` ; do echo $DECMASK | sudo tee $F ; done	# RPi4 only
+  # 2023-12-05 pokus new RPi5..
+  for F in `ls /sys/class/net/eth0/queues/*/rps_cpus` ; do echo $DECMASK | sudo tee $F ; done
+}
+
+affinity_eth_intel() {
+  echo "### affinity_eth_intel"
+  DECMASK=$1
+  # this part is RPi4 only
+  ## ETH0
+   echo -n "eth intel irqs: "
+    for IRQ in `cat /proc/interrupts | grep eth1 |awk '{print $1}' | tr -d :` ; do
+  #   #echo $CPU3 > /proc/irq/54/smp_affinity		# RPI4 ETH0 RX
+  #   #echo $CPU3 > /proc/irq/55/smp_affinity		# RPI4 ETH0 TX
+     echo -n "$IRQ "
+     #cat /proc/irq/$IRQ/smp_affinity
+     echo $DECMASK  > /proc/irq/$IRQ/smp_affinity
+   done  
+   echo "."
+
+  echo "put network work queues to cpu 3 (1-0-0-0)"
+  #for F in `ls /sys/class/net/eth0/queues/*/xps_cpus` ; do echo $DECMASK | sudo tee $F ; done	# RPi4 only
+  # 2023-12-05 pokus new RPi5..
+  for F in `ls /sys/class/net/eth?/queues/*/rps_cpus` ; do echo $DECMASK | sudo tee $F ; done
+
+#set +x
+}
+
+affinity_usb_fix_reschedule() {
+  # enabling this removes "resheduling interrupt"s from cpu1-3, but increases cpu0 avg jitter from 3,0 to 3,5 (old kernels, does not apply anymore after 6.17)
+  echo  "### affinity_usb_fix_reschedule:"
+#  cpu_affinity_usbxhci    0-3
+#  cpu_affinity_usbxhci    1,3
+# pokus 2024-03-06
+#  cpu_affinity_usbxhci    0-1
+  cpu_affinity_usbxhci    1
+}
+
 
 
 # dissable Kernel Same-page Merging to avoid latency
@@ -535,17 +623,22 @@ mmc_affinity() {
 
 #exit
 
+##################################################################################################
+# MAIN
+
+
+set_kernelparams 2>/dev/null
+#set_kernelparams_affinity 2>/dev/null
+
+
+# USB
+echo "USB:"
+renice_usb		-19
+#set -x
+set_realtime 		$P_XHCI ${SCHED_USB} ${PRIO_USB} pgrep
+cpu_affinity_usbxhci    ${CORE_USB}       # stay together with XHCI IRQ on CPU1 (taskset)
 
 # not needed - handled via babysit (actually maybe the non-rt processes...)
-# RAAT
-affinity_raat() {
-  echo "Affinity RAAT:"
-  #cpu_affinity_raat	1,2,3
-  cpu_affinity_raat	0
-  cpu_affinity_raat_rt	2
-  renice_raat		-18
-  #set_realtime $P_RAAT	FIFO 93 elevate
-}
 affinity_raat
 
 # HQP NAA
@@ -558,62 +651,8 @@ affinity_raat
 #renice_squeeze		-18
 #set_realtime $P_SQUEEZE	FIFO 94
 
-affinity_mpd() {
-  echo "Affinity mpd:"
-  cpu_affinity_mpd	1,2,3
-  #cpu_affinity_sqeeze	2
-  #cpu_affinity_upmpdcli	1
-  echo "Affinity others:"
-  cpu_affinity_trash	0
-  # 
-}
 
-# RPi5 mask is all cpus: f - not possible to change
-affinity_eth0() {
-  DECMASK=$1
-  # this part is RPi4 only
-  ## ETH0
-  # echo -n "eth0 irqs: "
-  # for IRQ in `cat /proc/interrupts | grep eth0 |awk '{print $1}' | tr -d :` ; do
-  #   #echo $CPU3 > /proc/irq/54/smp_affinity		# RPI4 ETH0 RX
-  #   #echo $CPU3 > /proc/irq/55/smp_affinity		# RPI4 ETH0 TX
-  #   echo -n "$IRQ "
-  #   #cat /proc/irq/$IRQ/smp_affinity
-  #   echo $DECMASK  > /proc/irq/$IRQ/smp_affinity
-  # done  
-  # echo "."
 
-  echo "put network work queues to cpu 3 (1-0-0-0)"
-  #for F in `ls /sys/class/net/eth0/queues/*/xps_cpus` ; do echo $DECMASK | sudo tee $F ; done	# RPi4 only
-  # 2023-12-05 pokus new RPi5..
-  for F in `ls /sys/class/net/eth0/queues/*/rps_cpus` ; do echo $DECMASK | sudo tee $F ; done
-}
-
-affinity_eth_intel() {
-  DECMASK=$1
-  # this part is RPi4 only
-  ## ETH0
-   echo -n "eth intel irqs: "
-    for IRQ in `cat /proc/interrupts | grep eth1 |awk '{print $1}' | tr -d :` ; do
-  #   #echo $CPU3 > /proc/irq/54/smp_affinity		# RPI4 ETH0 RX
-  #   #echo $CPU3 > /proc/irq/55/smp_affinity		# RPI4 ETH0 TX
-     echo -n "$IRQ "
-     #cat /proc/irq/$IRQ/smp_affinity
-     echo $DECMASK  > /proc/irq/$IRQ/smp_affinity
-   done  
-   echo "."
-
-  echo "put network work queues to cpu 3 (1-0-0-0)"
-  #for F in `ls /sys/class/net/eth0/queues/*/xps_cpus` ; do echo $DECMASK | sudo tee $F ; done	# RPi4 only
-  # 2023-12-05 pokus new RPi5..
-  for F in `ls /sys/class/net/eth?/queues/*/rps_cpus` ; do echo $DECMASK | sudo tee $F ; done
-}
-
-affinity_nfs() {
-  # NFS
-  echo "Affinity NFS"
-  pgrep -f  'NFS' |  xargs -I%% taskset -c -p 0,3 %%
-}
 #affinity_nfs
  
   # USB XHCI (is fixed to cpu0...)
@@ -632,13 +671,15 @@ affinity_eth0	${CPU3} 	# 2026-01-15
 cpu_affinity_eth0 3
 
 echo "intel eth affinity:"
-#affinity_eth_intel 8
+#affinity_eth_intel ${CPU3}
 renice_eth_intel -5
 cpu_affinity_eth_intel 3
 echo $CPU3 > /proc/irq/33/smp_affinity
 #echo $CPU3 > /proc/irq/35/smp_affinity
-#realtime_usb_raat_hpq_mpd
+realtime_eth_prio 99
 
+
+#realtime_usb_raat_hpq_mpd
 
 # MPD si handluje RTPRIO sam (rtprio 40 len pre potrebne thready)
 #set_realtime $P_MPD		FIFO 95 elevate
@@ -646,16 +687,19 @@ echo $CPU3 > /proc/irq/33/smp_affinity
 cpu_affinity_trash_b    0
 
 
-affinity_usb_fix_reschedule() {
-  # enabling this removes "resheduling interrupt"s from cpu1-3, but increases cpu0 avg jitter from 3,0 to 3,5
-  echo  "Affinity USB:"
-#  cpu_affinity_usbxhci    0-3
-#  cpu_affinity_usbxhci    1,3
-# pokus 2024-03-06
-#  cpu_affinity_usbxhci    0-1
-  cpu_affinity_usbxhci    1
-}
 
 affinity_usb_fix_reschedule
 
+
+exit
+
+# network services, not directly players
+#set_realtime $P_BRIDGE		FIFO 90
+#set_realtime $P_UPMPD		FIFO 90	pgrep
+
+# 20210324 toto ked je zapnute tak seka zaciatok tracku a potom kazdych cca 10sec sek. vtedy mpd cachuje zo siete
+#set_realtime $P_ETH		FIFO 80	pgrep
+
+#set_realtime $P_APPLIANCE	RR 70
+#set_realtime $P_ROON		RR 70
 
