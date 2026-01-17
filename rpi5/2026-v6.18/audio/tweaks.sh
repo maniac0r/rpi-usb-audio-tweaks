@@ -452,10 +452,6 @@ tune_um3gg1h1u() {
 
 set_kernelparams 2>/dev/null
 #set_kernelparams_affinity 2>/dev/null
-
-#exit
-
-
 #remove_kernelmodules
 
 # move all from cpu0 elsewhere
@@ -594,7 +590,6 @@ affinity_eth0() {
 }
 
 affinity_eth_intel() {
-set -x
   DECMASK=$1
   # this part is RPi4 only
   ## ETH0
@@ -612,8 +607,6 @@ set -x
   #for F in `ls /sys/class/net/eth0/queues/*/xps_cpus` ; do echo $DECMASK | sudo tee $F ; done	# RPi4 only
   # 2023-12-05 pokus new RPi5..
   for F in `ls /sys/class/net/eth?/queues/*/rps_cpus` ; do echo $DECMASK | sudo tee $F ; done
-
-set +x
 }
 
 affinity_nfs() {
@@ -665,16 +658,4 @@ affinity_usb_fix_reschedule() {
 
 affinity_usb_fix_reschedule
 
-
-exit
-
-# network servicec, not directly players
-#set_realtime $P_BRIDGE		FIFO 90
-#set_realtime $P_UPMPD		FIFO 90	pgrep
-
-# 20210324 toto ked je zapnute tak seka zaciatok tracku a potom kazdych cca 10sec sek. vtedy mpd cachuje zo siete
-#set_realtime $P_ETH		FIFO 80	pgrep
-
-#set_realtime $P_APPLIANCE	RR 70
-#set_realtime $P_ROON		RR 70
 

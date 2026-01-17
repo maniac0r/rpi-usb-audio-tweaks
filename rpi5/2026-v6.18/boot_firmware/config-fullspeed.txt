@@ -126,9 +126,9 @@ kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-nodebug
 
 #arm_freq=2800
 #arm_freq=3000
-arm_freq=400
-arm_freq_min=400
-core_freq_min=400
+arm_freq=2400
+arm_freq_min=2400
+core_freq_min=2400
 
 force_turbo=1
 #over_voltage_delta=35000
