@@ -1,0 +1,206 @@
+
+# For more options and information see
+# http://rptl.io/configtxt
+# Some settings may impact device functionality. See link above for details
+
+# Uncomment some or all of these to enable the optional hardware interfaces
+#dtparam=i2c_arm=on
+#dtparam=i2s=on
+#dtparam=spi=on
+dtparam=spi=off
+dtparam=i2c_arm=off
+
+dtoverlay=rp1
+
+# Disable the Ethernet LEDs.
+#dtparam=act_led
+# Turn off Power LED
+#dtparam=pwr_led_trigger=default-on
+#dtparam=pwr_led_activelow=off
+# Turn off Activity LED
+#dtparam=act_led_trigger=none
+#dtparam=act_led_activelow=off
+# Turn off Ethernet ACT LED
+#dtparam=eth_led0=4
+# Turn off Ethernet LNK LED
+#dtparam=eth_led1=4
+
+# Enable audio (loads snd_bcm2835)
+dtparam=audio=off
+
+# Disable analog out [rpi<=4]
+#force_pwm_open=0
+
+# not using bt / wifi
+dtoverlay=disable-bt
+dtoverlay=disable-wifi
+
+# not using uart
+enable_uart=0
+##8250.nr_uarts=0
+
+# minimal(?) gpu memory
+gpu_mem=4
+
+#
+disable_splash=1
+
+# Additional overlays and parameters are documented
+# /boot/firmware/overlays/README
+
+# Automatically load overlays for detected cameras
+camera_auto_detect=0
+
+# Automatically load overlays for detected DSI displays
+display_auto_detect=0
+
+# Automatically load initramfs files, if found
+auto_initramfs=1
+
+# Enable DRM VC4 V3D driver
+#dtoverlay=vc4-kms-v3d
+#max_framebuffers=2
+
+# Don't have the firmware create an initial video= setting in cmdline.txt.
+# Use the kernel's default instead.
+disable_fw_kms_setup=1
+
+# Run in 64-bit mode
+arm_64bit=1
+#kernel=kernel_2712.img
+#kernel=kernel_2712rt.img
+#kernel=kernel_2712rt-neresiev-4e.img
+#kernel=kernel_2712rt-neresiev.img
+#kernel=kernel_2712rt-neresiev-nodebug.img
+#kernel_2712rt-neresiev.img
+#kernel=kernel_2712rt-neresiev-norng.img
+#kernel=kernel_2712rt-neresiev-nonrngpm.img
+#kernel=kernel_2712rt-neresiev-nonrngpmidle.img.OK.proper
+
+#kernel=kernel_2712rt-neresiev-nonrngpmidle.img
+#kernel=kernel_2712rt-neresiev-nodebugi350.img
+# 6.6.x
+#kernel=kernel_2712-6.6.21-rt25-v8mnc4g+
+# no modules verzia..
+#kernel=kernel_2712-6.6.21-rt25-v8mnc4g+-rt-neresiev-debug
+# pokus o 50% fan speed (ked nemame moduly rpi5 fan ide na max)
+#dtparam=fan_temp0=0
+#dtparam=fan_temp0_speed=128
+#dtparam=fan_temp1_speed=128
+#dtparam=fan_temp2_speed=128
+#dtparam=fan_temp3_speed=128
+#
+#kernel=kernel_2712-6.6.21-rt25-v8mnc9+-rt-neresiev-nodebug
+#kernel=kernel_2712-6.6.32-rt25-v8mnc9+-rt-neresiev-nodebug
+
+##kernel=kernel_2712-6.6.40-rt36-v8mnc9+-rt-neresiev-nodebug
+##kernel=kernel_2712-6.6.69-rt47-v8mnc9+-rt-neresiev-nodebug
+#kernel=kernel_2712-6.12.8-rt6-v8mnc9+-rt-neresiev-nodebug
+##kernel=kernel_2712-6.12.8-rt6-v8mnc4g+-rt-neresiev-debug
+#kernel=kernel_2712-6.14.0-rc7-rt1-v8mnc4g+-rt-neresiev-debug
+#kernel=kernel_2712-6.14.0-rc7-rt1-v8mnc9+-rt-neresiev-nodebug
+## NO MODULES (OK! used till 2026-01)
+#kernel=kernel_2712-6.14.0-rc7-rt1-v8mnc9nomod+-rt-neresiev-nodebug
+##kernel=kernel_2712-6.14.0-rc7-rt1-v8mnc4gnomod+-rt-neresiev-debug
+
+# Diretta pokus s ipv6
+#kernel=kernel_2712-6.6.21-rt25-v8mnc9+-rt-neresiev-nodebug-ipv6
+
+# 2026-01-10
+#kernel=kernel_2712-6.14.11-rt3-mnc+-rt-neresiev-nodebug
+# 
+#kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-debug
+kernel=kernel_2712-6.17.12-rt7-mnc+-rt-neresiev-nodebug
+
+# pokus 6.12 latest (mal byt ma EEE fix , ale ne :/)
+#kernel=kernel_2712-6.12.64-rt14-v8mnc9+-rt-neresiev-nodebug
+# nebootuje (internal NIC yellow steady , intel nic off..)
+#kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-nodebug
+
+# 6.18-RT OK:
+#kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-debug
+kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-nodebug
+
+# DEFAULT RPIOS FALLBACK RPI5..
+#kernel=kernel_2712.img
+
+#arm_freq=2800
+#arm_freq=3000
+arm_freq=400
+arm_freq_min=400
+core_freq_min400
+
+force_turbo=1
+#over_voltage_delta=35000
+
+
+
+#gpu_freq=600
+gpu_freq=100
+gpu_freq_min=100
+
+# 2024-02-16 disable Energy Efficient Ethernet (EEE) powersave
+# 2026-01 skusam cez kernel patch..
+#dtparam=eee=off
+
+# Disable compensation for displays with overscan
+disable_overscan=1
+
+# Run as fast as firmware / board allows
+arm_boost=1
+
+[cm4]
+# Enable host mode on the 2711 built-in XHCI USB controller.
+# This line should be removed if the legacy DWC2 controller is required
+# (e.g. for USB device mode) or if USB support is not required.
+otg_mode=1
+
+[all]
+dtparam=pciex1
+#dtparam=pciex1_gen=3
+#dtparam=pciex1_gen=3
+#dtoverlay=pcie-32bit-dma-pi5
+
+#NETCONSOLE=5@192.168.1.1/,5@
+#NETCONSOLE=5@192.168.1.8/,5@/
+#NETCONSOLE=5@1.0.0.2/,5@1.0.0.1/
+
+#dtparam=pciex1_gen=2
+
+# disable hdmi and composite
+hdmi_ignore_hotplug=1
+enable_tvout=0
+
+# blank
+hdmi_blanking=2
+# disable blinking cursor
+vt.global_cursor_default=0
+
+# gpu cache
+disable_l2cache=0
+
+# Setting this to 1 disables adjusting the refresh rate of RAM every 500ms; this action measures the RAM's temperature. Default value is 0.
+disable_pvt=1
+
+# Don't dedicate a PLL to PWM audio. This will reduce analogue audio quality slightly. The spare PLL allows the core_freq to be set independently from the rest of the GPU, allowing for more control over overclocking. The default value is 0.
+avoid_pwm_pll=1
+
+# disable lcd detection
+ignore_lcd=1
+# disable touchscreen
+disable_touchscreen=1
+
+#Fan PWM
+dtparam=cooling_fan=on
+dtparam=fan_temp0=50000
+dtparam=fan_temp0_hyst=5000
+dtparam=fan_temp0_speed=75
+dtparam=fan_temp1=60000
+dtparam=fan_temp1_hyst=5000
+dtparam=fan_temp1_speed=125
+dtparam=fan_temp2=67500
+dtparam=fan_temp2_hyst=5000
+dtparam=fan_temp2_speed=175
+dtparam=fan_temp3=75000
+dtparam=fan_temp3_hyst=5000
+dtparam=fan_temp3_speed=250

@@ -1,0 +1,90 @@
+#!/bin/bash
+
+PRM="$1"
+R_PID='^[0-9]+'
+COLOR='--color=always'
+#COLOR=''
+
+if [ -z "$PRM" ] ; then
+  FILTER='^\s*-|^RTPRIO'
+else
+  #FILTER="$1"
+  #FILTER='^RTPRIO|'$$		# all processess except OUR OWN (kinda..)
+  FILTER='^RTPRIO'
+fi
+
+
+IRQS=$(ls -d /proc/irq/[0-9]* | sed 's/\/proc\/irq\///')
+IRQ_DEFAULT=$(cat /proc/irq/default_smp_affinity)
+
+IRQA=$(grep '' /proc/irq/[0-9]*/smp_affinity | sed -e 's/\/proc\/irq\///' -e 's/\/smp_affinity:/ /' | sort -n +1)
+
+R0=$(ps -eLo pid,cls,rtprio,pri,nice,cmd | grep -v grep | grep -i '\[irq\/' | sort -n -k 4 -k 3  )
+
+declare -a A_IRQ A_IRQAFF
+showirqs() {
+  for IRQ in ${IRQS[@]} ; do
+    A_IRQ[$IRQ]=$IRQ
+    #echo -n "IRQ:$IRQ"
+    P=$(echo "$R0" | egrep "irq/${IRQ}")
+    if [ -z "$P" ] ; then
+      A=$(cat /proc/irq/${IRQ}/smp_affinity)
+      IRQAFF=$(printf "\x${A}" | xxd -b | awk '{print $2}' | cut -c 5-8 | tr 0 - | tr 1 X )
+      A_IRQAFF[$IRQ]=$IRQ
+      IRQNAME=$(egrep "^\s+${IRQ}:" /proc/interrupts | awk '
+        {
+          x=substr($0, index($0,$6));
+          gsub(/ /,"!",x);
+          print x
+         }' | sed 's/\!\+/\!/g' | tr \! _ )
+
+     echo "- - - - - - - - - IRQ:$IRQ:$IRQNAME AFF_IRQ=$IRQAFF"
+    else
+     true
+  #    echo "$P"
+    fi
+  done
+}
+
+
+
+R=$(ps -eLo rtprio,cls,pri,ni,pid,lwp,rss,maj_flt,min_flt,command,comm | egrep -v -- "${FILTER}" | awk '
+  {x=substr($0, index($0,$10));
+  gsub(/ /,"!",x);
+  print $1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "x
+}' | sort -n   )
+
+OIFS=$IFS
+IFS=$'\n'
+
+(
+  echo "RTPRIO  CLS PRI NI  PID   LWPID	KB_RSS	MAJPGF	MIN_PGF	COMMAND	PID_AFF_3210"
+
+  for L in $R ; do
+    #P=$(echo "$L" | awk '{print $5}')
+    P=$(echo "$L" | awk '{print $6}')
+
+    AFFINITY_PID=$(taskset -p $P 2>/dev/null| sed 's/.*: //' )
+    if [ -n "$AFFINITY_PID" ] ; then
+      AFFINITY_PIDMASK=$(echo "0x${AFFINITY_PID}")
+      AFFINITY_PIDMASK=$(./hex2bin.sh $AFFINITY_PIDMASK | grep -v BINARY | awk '{print $2}' | tr 0 - | tr 1 X) 
+      echo "$L" $'\t' "AFF_PID=$AFFINITY_PIDMASK"
+    else
+      true		# skip threads not existing any-more (our script childs..)
+    fi
+  done
+  showirqs
+) | column -t | tr \! \  | \
+ GREP_COLORS='mt=01;36' egrep $COLOR -- '\s+FF\s|$' | \
+ GREP_COLORS='mt=01;35' egrep $COLOR -- '\s+RR\s|$' | \
+ GREP_COLORS='mt=01;34' egrep $COLOR -- '---X.*|$' | \
+ GREP_COLORS='mt=01;36' egrep $COLOR -- '--X-.*|$' | \
+ GREP_COLORS='mt=01;35' egrep $COLOR -- '-X--.*|$' | \
+ GREP_COLORS='mt=01;33' egrep $COLOR -- 'X---.*|$'
+
+# GREP_COLOR='01;31' egrep -i --color=always -- '--X-|-X--|$'
+
+
+
+
+# egrep --color '.*AFF_PID=X.*|'

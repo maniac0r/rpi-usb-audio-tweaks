@@ -1,0 +1,14 @@
+# install: cp babysit.service /etc/systemd/system/babysit.service
+
+[Unit]
+Description=Babysit threads PRIO and SCHED
+After=network.target sound.target
+
+[Service]
+#Type=notify
+ExecStart=/home/maniac/audio/babysit.sh 2>&1 >/dev/null 2>&1
+#CPUAffinity=1
+CPUAffinity=0
+
+[Install]
+WantedBy=default.target

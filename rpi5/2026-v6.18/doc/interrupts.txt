@@ -1,0 +1,25 @@
+           CPU0       CPU1       CPU2       CPU3       
+ 13:   27569696     168257         45      27195    GICv2  26 Level     arch_timer
+ 15:      13362          0          0          0    GICv2  65 Level     107c013880.mailbox
+ 16:        116          0          0          0    GICv2 153 Level     uart-pl011
+ 22:          0          0          0          0    GICv2 119 Level     DMA IRQ
+ 23:          0          0          0          0    GICv2 120 Level     DMA IRQ
+ 31:          0          0          0          0    GICv2 150 Level     107d004000.spi
+ 32:          0          0          0          0    GICv2 251 Level     aerdrv, PCIe bwctrl
+ 33:         40          0          0    1852713 MIP-MSI-PCI-MSI-0001:01:00.0   0 Edge      eth0
+ 36:          0          0          0          0    GICv2 261 Level     aerdrv, PCIe bwctrl
+104:          0          0          0          0 rp1_irq_chip   6 Level     eth2
+129:        102   54878822          0          0 rp1_irq_chip  31 Edge      xhci-hcd:usb1
+134:          1          0          0          0 rp1_irq_chip  36 Edge      xhci-hcd:usb3
+138:          0          0          0          0 rp1_irq_chip  40 Level     dw_axi_dmac_platform
+156:          4          0          0          0 rp1_irq_chip  58 Level     1f00008000.mailbox
+159:      38534          0          0          0    GICv2 305 Level     mmc0
+IPI0:    416915       7144    1294822        273       Rescheduling interrupts
+IPI1:         0        200         15        353       Function call interrupts
+IPI2:         0          0          0          0       CPU stop interrupts
+IPI3:         0          0          0          0       CPU stop NMIs
+IPI4:         0          0          0          0       Timer broadcast interrupts
+IPI5:      4975     506848         83     183884       IRQ work interrupts
+IPI6:         0          0          0          0       CPU backtrace interrupts
+IPI7:         0          0          0          0       KGDB roundup interrupts
+Err:          0

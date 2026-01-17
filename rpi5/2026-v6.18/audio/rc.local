@@ -1,0 +1,26 @@
+# Print the IP address
+_IP=$(hostname -I) || true
+if [ "$_IP" ]; then
+  printf "My IP address is %s\n" "$_IP"
+fi
+
+
+mkdir -p /dev/shm/RoonBridge/Logs /dev/shm/RAATServer/Logs 2> /dev/null
+
+
+if [ -f /etc/normalboot ] ; then
+ rm -f /etc/normalboot
+ exit 0
+fi
+
+
+USBAUDIO=$(lsusb  | grep -c 'XMOS Ltd X-SPDIF 2')
+if [ "x${USBAUDIO}" == "x" ] ; then
+  true
+else
+  /usr/sbin/ntpdate sk.pool.ntp.org &
+  /home/maniac/audio/audiophilize.sh
+fi
+
+
+exit 0

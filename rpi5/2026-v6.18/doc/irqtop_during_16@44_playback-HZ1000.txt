@@ -1,0 +1,17 @@
+rpi5 - irqtop - 2026-01-16 20:16:09 +0100
+              CPU0   CPU1   CPU2   CPU3
+  cpuUtil:     2.4    8.1    0.4    0.0   total CPU utilization %
+     %irq:     0.0    0.0    0.0    0.0   hardware IRQ CPU util%
+    %sirq:     0.0    0.0    0.0    0.0   software IRQ CPU util%
+ irqTotal:       9   2138     49     35   total hardware IRQs
+i      15:       0      .      .      .     GICv2  65 Level     107c013880.mailbox
+i      33:       .      .      .     33  MIP-MSI-PCI-MSI-0001:01:00.0   0 Edge      eth0
+i     104:       0      .      .      .  rp1_irq_chip   6 Level     eth2
+i     129:       .   2136      .      .  rp1_irq_chip  31 Edge      xhci-hcd:usb1
+i     159:       0      .      .      .     GICv2 305 Level     mmc0
+i    IPI0:       7      0     49      0        Rescheduling interrupts
+i    IPI5:       0      2      0      1        IRQ work interrupts
+s   TIMER:     502      2      0      0
+s  NET_TX:       0      0      0      0
+s  NET_RX:       0      0      0     26
+s HRTIMER:       6      0      0      0

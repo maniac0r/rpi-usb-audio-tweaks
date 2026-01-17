@@ -1,0 +1,24 @@
+[Service]
+Type=notify
+ExecStartPre=/usr/bin/mkdir -p "/dev/shm/mpd/music" "/dev/shm/mpd/playlists" ; /usr/bin/mount -o remount,size=1G /dev/shm
+ExecStart=/usr/bin/taskset -c 1-3 /usr/bin/mpd --no-daemon /etc/mpd.conf
+LimitRTPRIO=99
+LimitRTTIME=infinity
+
+# for io_uring
+LimitMEMLOCK=4096M
+
+ProtectSystem=yes
+
+# more paranoid security settings
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+# AF_NETLINK is required by libsmbclient, or it will exit() .. *sigh*
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+RestrictNamespaces=yes
+
+[Install]
+WantedBy=multi-user.target
+Also=mpd.socket

@@ -1,0 +1,70 @@
+#!/bin/bash
+
+export IP_DEPLOY=192.168.0.176
+#export IP_DEPLOY=192.168.0.171
+export DBG="nodebug"
+export KERN_VER=rt-neresiev-$DBG
+export KERNEL=kernel_2712
+#export KERNEL=kernel7l
+#export KERNEL=kernel8
+
+#VAR_ARCH="arm"
+VAR_ARCH="arm64"
+#VAR_CROSSCOMPILE=arm-linux-gnueabihf-
+VAR_CROSSCOMPILE="aarch64-linux-gnu-"
+#VAR_CFLAGS="-march=armv8-a+crc+simd -mtune=cortex-a72"
+#VAR_CFLAGS="-march=armv8-a+crc+simd -mtune=cortex-a72 -mfloat-abi=hard -mfpu=neon-fp-armv8 -mneon-for-64bits -O3"
+#VAR_CFLAGS="-march=armv8-a+crc+simd -mtune=cortex-a72 -O3"
+VAR_CFLAGS="-march=armv8-a+crypto+fp16+rcpc+dotprod -mtune=cortex-a76 -O3"
+VAR_CXX_FLAGS="${VAR_CFLAGS}"
+VAR_KCFLAGS="${VAR_CFLAGS}"
+
+
+cd linux-$DBG
+#make -j 8 ARCH=${VAR_ARCH} CROSS_COMPILE=${VAR_CROSSCOMPILE} CFLAGS="${VAR_CFLAGS}" CXXFLAGS="${VAR_CXXFLAGS}" KCFLAGS="${VAR_KCFLAGS}" oldconfig
+make -j 8 ARCH=${VAR_ARCH} CROSS_COMPILE=${VAR_CROSSCOMPILE} CFLAGS="${VAR_CFLAGS}" CXXFLAGS="${VAR_CXXFLAGS}" KCFLAGS="${VAR_KCFLAGS}" menuconfig
+##make mrproper ; cp ../linux-6.1-rc3-RT.config-rpi4_64bit .config  ; make -j8 ARCH=${VAR_ARCH} CROSS_COMPILE=${VAR_CROSSCOMPILE} deb-pkg
+#make mrproper ; cp ../linux-6.1-rc3-RT.config-rpi4_64bit .config
+#exit
+
+export ARCH="${VAR_ARCH}"
+export CROSS_COMPILE="${VAR_CROSSCOMPILE}"
+export INSTALL_MOD_PATH=../out
+export INSTALL_DTBS_PATH=../out
+
+export CFLAGS="${VAR_CFLAGS}"
+export CXXFLAGS=$CFLAGS
+export KCFLAGS=$CFLAGS
+
+# fpu is automatically enabled on aarch64
+make -j 8 ARCH=${VAR_ARCH} CROSS_COMPILE=${VAR_CROSSCOMPILE} CFLAGS="${VAR_CFLAGS}" CXXFLAGS="${VAR_CXXFLAGS}" KCFLAGS="${VAR_KCFLAGS}" || exit
+make -j 8 ARCH=${VAR_ARCH} CROSS_COMPILE=${VAR_CROSSCOMPILE} CFLAGS="${VAR_CFLAGS}" CXXFLAGS="${VAR_CXXFLAGS}" KCFLAGS="${VAR_KCFLAGS}" modules
+make -j 8 ARCH=${VAR_ARCH} CROSS_COMPILE=${VAR_CROSSCOMPILE} dtbs
+make -j 8 ARCH=${VAR_ARCH} CROSS_COMPILE=${VAR_CROSSCOMPILE} modules_install
+make -j 8 ARCH=${VAR_ARCH} CROSS_COMPILE=${VAR_CROSSCOMPILE} dtbs_install
+
+kernelversion=$(grep -a 'Linux version' ./vmlinux.o | strings | egrep '^Linux version' | awk '{print $3}')
+
+
+# DEPLOY
+cp arch/arm64/boot/Image.gz ../out/${KERNEL}-${kernelversion}-${KERN_VER}
+rm -f ../out/*.dtb
+cp arch/arm64/boot/dts/broadcom/*.dtb ../out/
+
+# REMOTE COPY
+scp arch/arm64/boot/Image.gz maniac@${IP_DEPLOY}:out/${KERNEL}-${kernelversion}-${KERN_VER}
+scp arch/arm64/boot/dts/broadcom/*.dtb maniac@${IP_DEPLOY}:out/
+scp -r ../out/overlays maniac@${IP_DEPLOY}:out/
+rsync -av ../out/lib/modules/* maniac@${IP_DEPLOY}:out/
+
+
+cp ./.config ../out/config-${kernelversion}-${KERN_VER}
+scp ./.config maniac@${IP_DEPLOY}:out/config-$kernelversion-${KERN_VER}
+
+cd ..
+
+#echo rsync -av out pi@192.168.0.13:
+#echo scp linux-6.1-rc3-RT/arch/arm/boot/zImage pi@192.168.0.134:out/kernel7.img
+
+#rsync -av out pi@192.168.0.134:
+#scp linux-6.1-rc3-RT/arch/arm64/boot/Image.gz pi@192.168.0.134:out/kernel8.img

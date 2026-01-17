@@ -1,0 +1,101 @@
+#!/bin/bash
+
+PRM="$1"
+COLOR='--color=always'
+R_PID='^[0-9]+'
+
+FILTER='^RTPRIO'
+
+IRQS=$(ls -d /proc/irq/[0-9]* 2>/dev/null | sed 's/\/proc\/irq\///')
+IRQ_DEFAULT=$(cat /proc/irq/default_smp_affinity)
+
+R0=$(ps -eLo pid,psr,cls,rtprio,pri,nice,comm --sort=psr,rtprio)
+
+### NEW: mask → cpu list
+mask_to_cpulist() {
+  local MASK="$1"
+  printf "%d\n" "0x$MASK" | \
+    awk '{
+      for (i=0;i<64;i++)
+        if (and($1, lshift(1,i))) printf "%d,", i
+    }' | sed 's/,$//'
+}
+
+### NEW: show IRQ threads
+show_irq_threads() {
+  echo
+  echo "=== IRQ THREADS ======================================="
+  ps -eLo pid,psr,cls,rtprio,comm | \
+    grep '\[irq/' | \
+    awk '
+      {
+        irq=$5
+        gsub(/\[|\]/,"",irq)
+        printf "CPU%-2s PID %-6s RT %-3s %s\n",$2,$1,$4,irq
+      }'
+}
+
+show_irq_affinity() {
+  echo
+  echo "=== IRQ AFFINITY ======================================"
+  for IRQ in $IRQS ; do
+    AFF_LIST=$(cat /proc/irq/$IRQ/smp_affinity_list 2>/dev/null)
+    NAME=$(awk -v irq="$IRQ" '$1 ~ irq":" {print $NF}' /proc/interrupts)
+    DEF=""
+    DEF_AFF=$(cat /proc/irq/default_smp_affinity_list 2>/dev/null)
+    [ "$AFF_LIST" = "$DEF_AFF" ] && DEF="(default)"
+    printf "IRQ %-4s %-20s CPUs:%-8s %s\n" "$IRQ" "$NAME" "$AFF_LIST" "$DEF"
+  done
+}
+
+check_irq_mismatch() {
+  echo
+  echo "=== IRQ AFFINITY MISMATCH ============================="
+  ps -eLo pid,psr,comm | grep '\[irq/' | while read PID CPU COMM ; do
+    IRQ=$(echo "$COMM" | sed 's/.*irq\/\([0-9]\+\).*/\1/')
+    AFF=$(cat /proc/irq/$IRQ/smp_affinity_list 2>/dev/null)
+    echo "$AFF" | grep -qw "$CPU" || \
+      echo "WARN: IRQ $IRQ thread on CPU$CPU but affinity=$AFF"
+  done
+}
+
+check_irq_audio_conflict() {
+  for IRQ in $(grep xhci /proc/interrupts | cut -d: -f1) ; do
+    AFF=$(cat /proc/irq/$IRQ/smp_affinity_list)
+    echo "$AFF" | grep -qw "$AUDIO_CPUS" && \
+      echo "[FAIL] USB IRQ $IRQ runs on audio CPU $AUDIO_CPUS"
+  done
+}
+
+check_audio_thread() {
+  ps -eLo pid,psr,cls,rtprio,comm | grep audio | \
+  awk '$3!="FF" || $4<80 {print "[FAIL] audio thread not RT:",$0}'
+}
+
+### NEW: CPU-centric RT view
+show_cpu_view() {
+  echo
+  echo "=== CPU VIEW (RT first) ==============================="
+  for CPU in $(seq 0 $(nproc --all)) ; do
+    echo "--- CPU $CPU -----------------------------------------"
+    ps -eLo pid,psr,cls,rtprio,comm | \
+      awk -v cpu="$CPU" '$2==cpu {print}' | \
+      sort -nrk4
+  done
+}
+
+### ORIGINAL-ish process list
+show_rt_tasks() {
+  echo
+  echo "=== RT TASKS =========================================="
+  echo "$R0" | grep -E 'FF|RR' | grep -v grep
+}
+
+### RUN
+show_rt_tasks
+show_irq_threads
+show_irq_affinity
+show_cpu_view
+check_irq_mismatch
+check_irq_audio_conflict
+check_audio_thread

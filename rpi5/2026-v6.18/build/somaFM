@@ -1,0 +1,1 @@
+ffmpeg -i https://hls.somafm.com/hls/groovesalad/FLAC/program.m3u8 -f wav - | ffplay -
