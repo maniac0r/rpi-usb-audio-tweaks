@@ -1,0 +1,217 @@
+
+# For more options and information see
+# http://rptl.io/configtxt
+# Some settings may impact device functionality. See link above for details
+
+# Uncomment some or all of these to enable the optional hardware interfaces
+#dtparam=i2c_arm=on
+#dtparam=i2s=on
+#dtparam=spi=on
+dtparam=spi=off
+dtparam=i2c_arm=off
+
+dtoverlay=rp1
+
+# Disable the Ethernet LEDs.
+#dtparam=act_led
+# Turn off Power LED
+#dtparam=pwr_led_trigger=default-on
+#dtparam=pwr_led_activelow=off
+# Turn off Activity LED
+#dtparam=act_led_trigger=none
+#dtparam=act_led_activelow=off
+# Turn off Ethernet ACT LED
+#dtparam=eth_led0=4
+# Turn off Ethernet LNK LED
+#dtparam=eth_led1=4
+
+# Enable audio (loads snd_bcm2835)
+dtparam=audio=off
+
+# Disable analog out [rpi<=4]
+#force_pwm_open=0
+
+# not using bt / wifi
+dtoverlay=disable-bt
+dtoverlay=disable-wifi
+
+# not using uart
+enable_uart=0
+##8250.nr_uarts=0
+
+# minimal(?) gpu memory
+gpu_mem=4
+
+#
+disable_splash=1
+
+# Additional overlays and parameters are documented
+# /boot/firmware/overlays/README
+
+# Automatically load overlays for detected cameras
+camera_auto_detect=0
+
+# Automatically load overlays for detected DSI displays
+display_auto_detect=0
+
+# Automatically load initramfs files, if found
+auto_initramfs=1
+
+# Enable DRM VC4 V3D driver
+#dtoverlay=vc4-kms-v3d
+#max_framebuffers=2
+
+# Don't have the firmware create an initial video= setting in cmdline.txt.
+# Use the kernel's default instead.
+disable_fw_kms_setup=1
+
+# Run in 64-bit mode
+arm_64bit=1
+
+# Diretta pokus s ipv6
+#kernel=kernel_2712-6.6.21-rt25-v8mnc9+-rt-neresiev-nodebug-ipv6
+
+# 2026-01-10
+#kernel=kernel_2712-6.14.11-rt3-mnc+-rt-neresiev-nodebug
+# 
+#kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-debug
+#kernel=kernel_2712-6.17.12-rt7-mnc+-rt-neresiev-nodebug
+
+# pokus 6.12 latest (mal byt ma EEE fix , ale ne :/)
+#kernel=kernel_2712-6.12.64-rt14-v8mnc9+-rt-neresiev-nodebug
+# nebootuje (internal NIC yellow steady , intel nic off..)
+#kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-nodebug
+
+# 6.18-RT OK:
+#kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-debug
+#kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-nodebug
+
+# LTO test
+#kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-lto-debug
+#kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-lto-nodebug
+#kernel=kernel_2712-6.18.8-rt3-mnc+-rt-neresiev-lto-nodebug
+kernel=kernel_2712-6.18.7-rt3-mnc+-rt-neresiev-lto-nodebug
+
+#kernel=kernel_2712-6.18.8-rt3-mnc+-rt-neresiev-lto-nodebug
+
+# pokus back na 6.18.7 - OK
+kernel=kernel_2712-6.18.7-rt3-mnc+-rt-neresiev-lto-nodebug-new
+
+##################################################################
+# LOW POWER: noNEON
+#kernel=kernel_2712-6.18.7-rt3-mnc+-rt-neresiev-lto-noneon-nodebug
+
+##################################################################
+
+# DEFAULT RPIOS FALLBACK RPI5..
+#kernel=kernel_2712.img
+
+#arm_freq=2400
+#arm_freq_min=2400
+#core_freq_min=2400
+
+# 2600(server) / 4 = 650
+arm_freq=1500
+arm_freq_min=1500
+# Frequency of the GPU processor core in MHz. 
+core_freq=50
+core_freq_min=50
+# this must be off to allow reducing core_freq
+hdmi_enable_4kp60=0
+
+force_turbo=1
+initial_turbo=60
+core_freq_fixed=1
+
+#over_voltage_delta=35000
+
+#sdram_freq=3000
+#sdram_freq_min=3000
+#sdram_freq=2900
+#sdram_freq_min=2900
+#sdram_freq=2800
+#sdram_freq_min=2800
+#sdram_freq=2700
+#sdram_freq_min=2700
+#sdram_freq=2400
+#sdram_freq_min=2400
+#sdram_freq=2300
+#sdram_freq_min=2300
+
+over_voltage=-6
+
+# Sets core_freq, h264_freq, isp_freq, v3d_freq and hevc_freq together.
+#gpu_freq=600
+gpu_freq=50
+gpu_freq_min=50
+
+#dtparam=eee=off
+
+# Disable compensation for displays with overscan
+disable_overscan=1
+
+# Allow to run as fast as firmware / board allows
+arm_boost=1
+
+[all]
+dtparam=pciex1
+#dtparam=pciex1_gen=3
+#dtparam=pciex1_gen=3
+#dtparam=pciex1_gen=2
+#dtoverlay=pcie-32bit-dma-pi5
+
+# disable LPM
+dwc_otg.lpm_enable=0
+
+#NETCONSOLE=5@192.168.1.1/,5@
+#NETCONSOLE=5@192.168.1.8/,5@/
+#NETCONSOLE=5@1.0.0.2/,5@1.0.0.1/
+
+
+# disable hdmi and composite
+hdmi_ignore_hotplug=1
+hdmi_ignore_cec=1
+max_framebuffers=0
+enable_tvout=0
+
+# blank
+hdmi_blanking=2
+# disable blinking cursor
+vt.global_cursor_default=0
+
+# gpu cache
+disable_l2cache=0
+
+# Setting this to 1 disables adjusting the refresh rate of RAM every 500ms; this action measures the RAM's temperature. Default value is 0.
+disable_pvt=1
+
+# Don't dedicate a PLL to PWM audio. This will reduce analogue audio quality slightly. The spare PLL allows the core_freq to be set independently from the rest of the GPU, allowing for more control over overclocking. The default value is 0.
+avoid_pwm_pll=1
+
+# disable lcd detection
+ignore_lcd=1
+# disable touchscreen
+disable_touchscreen=1
+
+# If you are not intending to use a PoE HAT, this is a helpful way to minimise boot time.
+disable_poe_fan
+# Set this option to 0 to prevent the firmware from trying to read an I2C HAT EEPROM 
+force_eeprom_read=0
+
+
+#Fan PWM
+#dtparam=cooling_fan=off
+# needs to be on so we can disable it fully later , including fan_temp definitions..
+dtparam=cooling_fan=on
+dtparam=fan_temp0=65000
+dtparam=fan_temp0_hyst=5000
+dtparam=fan_temp0_speed=0
+dtparam=fan_temp1=70000
+dtparam=fan_temp1_hyst=5000
+dtparam=fan_temp1_speed=125
+dtparam=fan_temp2=77000
+dtparam=fan_temp2_hyst=5000
+dtparam=fan_temp2_speed=175
+dtparam=fan_temp3=79000
+dtparam=fan_temp3_hyst=5000
+dtparam=fan_temp3_speed=250

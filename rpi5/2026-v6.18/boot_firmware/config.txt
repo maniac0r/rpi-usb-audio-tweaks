@@ -67,41 +67,6 @@ disable_fw_kms_setup=1
 
 # Run in 64-bit mode
 arm_64bit=1
-#kernel=kernel_2712.img
-#kernel=kernel_2712rt.img
-#kernel=kernel_2712rt-neresiev-4e.img
-#kernel=kernel_2712rt-neresiev.img
-#kernel=kernel_2712rt-neresiev-nodebug.img
-#kernel_2712rt-neresiev.img
-#kernel=kernel_2712rt-neresiev-norng.img
-#kernel=kernel_2712rt-neresiev-nonrngpm.img
-#kernel=kernel_2712rt-neresiev-nonrngpmidle.img.OK.proper
-
-#kernel=kernel_2712rt-neresiev-nonrngpmidle.img
-#kernel=kernel_2712rt-neresiev-nodebugi350.img
-# 6.6.x
-#kernel=kernel_2712-6.6.21-rt25-v8mnc4g+
-# no modules verzia..
-#kernel=kernel_2712-6.6.21-rt25-v8mnc4g+-rt-neresiev-debug
-# pokus o 50% fan speed (ked nemame moduly rpi5 fan ide na max)
-#dtparam=fan_temp0=0
-#dtparam=fan_temp0_speed=128
-#dtparam=fan_temp1_speed=128
-#dtparam=fan_temp2_speed=128
-#dtparam=fan_temp3_speed=128
-#
-#kernel=kernel_2712-6.6.21-rt25-v8mnc9+-rt-neresiev-nodebug
-#kernel=kernel_2712-6.6.32-rt25-v8mnc9+-rt-neresiev-nodebug
-
-##kernel=kernel_2712-6.6.40-rt36-v8mnc9+-rt-neresiev-nodebug
-##kernel=kernel_2712-6.6.69-rt47-v8mnc9+-rt-neresiev-nodebug
-#kernel=kernel_2712-6.12.8-rt6-v8mnc9+-rt-neresiev-nodebug
-##kernel=kernel_2712-6.12.8-rt6-v8mnc4g+-rt-neresiev-debug
-#kernel=kernel_2712-6.14.0-rc7-rt1-v8mnc4g+-rt-neresiev-debug
-#kernel=kernel_2712-6.14.0-rc7-rt1-v8mnc9+-rt-neresiev-nodebug
-## NO MODULES (OK! used till 2026-01)
-#kernel=kernel_2712-6.14.0-rc7-rt1-v8mnc9nomod+-rt-neresiev-nodebug
-##kernel=kernel_2712-6.14.0-rc7-rt1-v8mnc4gnomod+-rt-neresiev-debug
 
 # Diretta pokus s ipv6
 #kernel=kernel_2712-6.6.21-rt25-v8mnc9+-rt-neresiev-nodebug-ipv6
@@ -110,7 +75,7 @@ arm_64bit=1
 #kernel=kernel_2712-6.14.11-rt3-mnc+-rt-neresiev-nodebug
 # 
 #kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-debug
-kernel=kernel_2712-6.17.12-rt7-mnc+-rt-neresiev-nodebug
+#kernel=kernel_2712-6.17.12-rt7-mnc+-rt-neresiev-nodebug
 
 # pokus 6.12 latest (mal byt ma EEE fix , ale ne :/)
 #kernel=kernel_2712-6.12.64-rt14-v8mnc9+-rt-neresiev-nodebug
@@ -119,56 +84,94 @@ kernel=kernel_2712-6.17.12-rt7-mnc+-rt-neresiev-nodebug
 
 # 6.18-RT OK:
 #kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-debug
-kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-nodebug
+#kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-nodebug
+
+# LTO test
+#kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-lto-debug
+#kernel=kernel_2712-6.18.4-rt3-mnc+-rt-neresiev-lto-nodebug
+#kernel=kernel_2712-6.18.8-rt3-mnc+-rt-neresiev-lto-nodebug
+kernel=kernel_2712-6.18.7-rt3-mnc+-rt-neresiev-lto-nodebug
+
+#kernel=kernel_2712-6.18.8-rt3-mnc+-rt-neresiev-lto-nodebug
+
+# pokus back na 6.18.7 - OK
+kernel=kernel_2712-6.18.7-rt3-mnc+-rt-neresiev-lto-nodebug-new
+
+##################################################################
+# LOW POWER: noNEON
+kernel=kernel_2712-6.18.7-rt3-mnc+-rt-neresiev-lto-noneon-nodebug
+
+##################################################################
 
 # DEFAULT RPIOS FALLBACK RPI5..
 #kernel=kernel_2712.img
 
-#arm_freq=2800
-#arm_freq=3000
-arm_freq=400
-arm_freq_min=400
-core_freq_min=400
+#arm_freq=2400
+#arm_freq_min=2400
+#core_freq_min=2400
+
+# 2600(server) / 4 = 650
+arm_freq=600
+arm_freq_min=600
+# Frequency of the GPU processor core in MHz. 
+core_freq=50
+core_freq_min=50
+# this must be off to allow reducing core_freq
+hdmi_enable_4kp60=0
 
 force_turbo=1
+initial_turbo=60
+core_freq_fixed=1
+
 #over_voltage_delta=35000
 
+#sdram_freq=3000
+#sdram_freq_min=3000
+#sdram_freq=2900
+#sdram_freq_min=2900
+#sdram_freq=2800
+#sdram_freq_min=2800
+#sdram_freq=2700
+#sdram_freq_min=2700
+#sdram_freq=2400
+#sdram_freq_min=2400
+sdram_freq=2300
+sdram_freq_min=2300
 
+over_voltage=-6
 
+# Sets core_freq, h264_freq, isp_freq, v3d_freq and hevc_freq together.
 #gpu_freq=600
-gpu_freq=100
-gpu_freq_min=100
+gpu_freq=50
+gpu_freq_min=50
 
-# 2024-02-16 disable Energy Efficient Ethernet (EEE) powersave
-# 2026-01 skusam cez kernel patch..
 #dtparam=eee=off
 
 # Disable compensation for displays with overscan
 disable_overscan=1
 
-# Run as fast as firmware / board allows
+# Allow to run as fast as firmware / board allows
 arm_boost=1
-
-[cm4]
-# Enable host mode on the 2711 built-in XHCI USB controller.
-# This line should be removed if the legacy DWC2 controller is required
-# (e.g. for USB device mode) or if USB support is not required.
-otg_mode=1
 
 [all]
 dtparam=pciex1
 #dtparam=pciex1_gen=3
 #dtparam=pciex1_gen=3
+#dtparam=pciex1_gen=2
 #dtoverlay=pcie-32bit-dma-pi5
+
+# disable LPM
+dwc_otg.lpm_enable=0
 
 #NETCONSOLE=5@192.168.1.1/,5@
 #NETCONSOLE=5@192.168.1.8/,5@/
 #NETCONSOLE=5@1.0.0.2/,5@1.0.0.1/
 
-#dtparam=pciex1_gen=2
 
 # disable hdmi and composite
 hdmi_ignore_hotplug=1
+hdmi_ignore_cec=1
+max_framebuffers=0
 enable_tvout=0
 
 # blank
@@ -190,17 +193,25 @@ ignore_lcd=1
 # disable touchscreen
 disable_touchscreen=1
 
+# If you are not intending to use a PoE HAT, this is a helpful way to minimise boot time.
+disable_poe_fan
+# Set this option to 0 to prevent the firmware from trying to read an I2C HAT EEPROM 
+force_eeprom_read=0
+
+
 #Fan PWM
+#dtparam=cooling_fan=off
+# needs to be on so we can disable it fully later , including fan_temp definitions..
 dtparam=cooling_fan=on
-dtparam=fan_temp0=50000
+dtparam=fan_temp0=65000
 dtparam=fan_temp0_hyst=5000
-dtparam=fan_temp0_speed=75
-dtparam=fan_temp1=60000
+dtparam=fan_temp0_speed=0
+dtparam=fan_temp1=70000
 dtparam=fan_temp1_hyst=5000
 dtparam=fan_temp1_speed=125
-dtparam=fan_temp2=67500
+dtparam=fan_temp2=77000
 dtparam=fan_temp2_hyst=5000
 dtparam=fan_temp2_speed=175
-dtparam=fan_temp3=75000
+dtparam=fan_temp3=79000
 dtparam=fan_temp3_hyst=5000
 dtparam=fan_temp3_speed=250

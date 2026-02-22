@@ -6,3 +6,5 @@ To disable NEON/SIMD instructions,  besides NoNEON kerel it is also required:
 
 reboot
 
+### UPDATE - just use LOWPOWER.sh and MIDPOWER.sh in /boot/firmware 
+### Also modification of roonbridge service is now done automagically in audiophilize.sh during boot.

@@ -13,6 +13,10 @@ systemctl stop '*getty*'
 #ethtool -s eth0 speed 100 duplex full autoneg on
 ##ethtool -s eth1 speed 100 duplex full autoneg on
 
+# Intel NIC via PaulPang, EtherRegen -> ASIX USB in NUC2 (working)
+/usr/sbin/ifconfig eth0 mtu 9000
+/usr/sbin/ifconfig eth1 mtu 9000 2>/dev/null
+/usr/sbin/ifconfig eth2 mtu 9000 2>/dev/null
 
 echo "-"
 sleep 0.2
@@ -86,6 +90,17 @@ mv /var/roon/RAATServer/Logs /var/roon/RAATServer/Logs.old
 ln -s /dev/shm/RAATServer/Logs /var/roon/RAATServer/Logs
 ln -s /dev/shm/RoonBridge/Logs /var/roon/RoonBridge/Logs
 
+####################################
+# LOWPOWER (noNEON SIMD) detection
+POWER=$(grep -c 'GLIBC_TUNABLES=glibc.cpu.hwcaps=-simd,-asimd' /boot/firmware/cmdline.txt)
+if [ $POWER -eq 0 ] ; then
+  cat /etc/systemd/system/roonbridge.service | sed 's/^Environment=GLIBC_TUNABLES.*/#Environment=GLIBC_TUNABLES=glibc.cpu.hwcaps=-simd,-asimd/' > /etc/systemd/system/roonbridge.service
+else
+  cat /etc/systemd/system/roonbridge.service | sed 's/^#Environment=GLIBC_TUNABLES.*/Environment=GLIBC_TUNABLES=glibc.cpu.hwcaps=-simd,-asimd/' > /etc/systemd/system/roonbridge.service
+fi
+systemctl daemon-reload
+####################################
+
 systemctl restart roonbridge	# TODO!
 
 sudo mount -o remount,size=32M /dev/shm
@@ -96,25 +111,27 @@ echo -n "Current fan level: "$(cat /sys/class/thermal/cooling_device0/cur_state)
 echo -n " , setting level: "
 echo 1 | tee /sys/class/thermal/cooling_device0/cur_state
 
-
-# check if we have IP
-R=$(/usr/sbin/route -n | egrep -v '^Kernel IP routing table|^Destination' |wc -l)
-if [ $R -gt 0 ] ; then
-    # rpi5 shutdown interfaces without IP assigned
-    INTS=$(ifconfig  | egrep '^e\S+[0-9]' | awk -F ':' '{print $1}')
-    for I in $INTS ; do
-      #echo $I
-      IFC=$(ifconfig $I | egrep 'inet ' | awk '{print $2}')
-      if [ "x${IFC}" = "x" ] ; then
-        echo "$I noip: $IFC , bringing down"
-        ifconfig $I down
-      else
-        echo "$I has IP: $IFC, skipping"
-      fi
-    done
-else
-    echo "No IP configured! Keeping interfaces active!"
-fi
+disable_unused_eth() {
+  # check if we have IP
+  R=$(/usr/sbin/route -n | egrep -v '^Kernel IP routing table|^Destination' |wc -l)
+  if [ $R -gt 0 ] ; then
+      # rpi5 shutdown interfaces without IP assigned
+      INTS=$(ifconfig  | egrep '^e\S+[0-9]' | awk -F ':' '{print $1}')
+      for I in $INTS ; do
+        #echo $I
+        IFC=$(ifconfig $I | egrep 'inet ' | awk '{print $2}')
+        if [ "x${IFC}" = "x" ] ; then
+          echo "$I noip: $IFC , bringing down"
+          ifconfig $I down
+        else
+          echo "$I has IP: $IFC, skipping"
+        fi
+      done
+  else
+      echo "No IP configured! Keeping interfaces active!"
+  fi
+}
+disable_unused_eth
 
 # TODO!
 /home/maniac/audio/tweaks.sh 
@@ -178,10 +195,10 @@ echo "DONE , RC:${RC}" >> /home/maniac/iperf.sh_boot.log
 
 ###########################################################
 # RPi5 Fan Speed
-#/usr/bin/pinctrl FAN_PWM dl	# Off
+/usr/bin/pinctrl FAN_PWM dl	# Off
 #/usr/bin/pinctrl FAN_PWM ah	# On (Full)
-/usr/bin/pinctrl FAN_PWM a0	# Auto
+#/usr/bin/pinctrl FAN_PWM a0	# Auto
 
 
 # Disable EEE - needed for PaulPang Quad switch, else about 10% packetloss :/
-/usr/sbin/ethtool --set-eee eth2 eee off
+#/usr/sbin/ethtool --set-eee eth2 eee off
